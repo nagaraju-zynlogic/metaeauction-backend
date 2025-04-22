@@ -29,8 +29,7 @@ public class AdminController {
 	private userRepository usersRepository;
 	@Autowired
 	private AuctionService auctionService;
-	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
+	
 	
 	@Autowired
 	private BidService bidService;
