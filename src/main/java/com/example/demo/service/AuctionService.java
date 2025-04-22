@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.Repository.AuctionRepository;
 import com.example.demo.entity.Auction;
+import com.example.demo.entity.Users;
 
 @Service
 public class AuctionService {
@@ -34,6 +35,12 @@ public class AuctionService {
 			return auction;
 		}
 		
+		
+		return null;
+	}
+
+	public List<Auction> getAuctionById(Users user) {
+		List<Auction> auctions = auctionRepository.findAllByUser(user);
 		
 		return null;
 	}

@@ -22,6 +22,7 @@ public class AuctionController {
 		return auctionService.getAllAuctions();
 	}
 	
+	
 	// find all upcoming auctions
 	@GetMapping("/upcomingAuctions")
 	public List<Auction> getUpcomingAuctions() {

@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import java.time.LocalDateTime;
 
 import com.example.demo.statusEnum.AuctionStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,6 +54,7 @@ public class Auction {
     
     @ManyToOne
     @JoinColumn(name = "user_id")  // FK column in auctions table
+    @JsonBackReference
     private Users user;
     
     
