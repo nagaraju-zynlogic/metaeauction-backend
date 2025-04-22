@@ -35,6 +35,17 @@ public class AuctionController {
 		return auctionService.getAuctionById(auctionId);
 	}
 	
+	// find auctions currently running
+	@GetMapping("/runningAuctions")
+	public List<Auction> getRunningAuctions() {
+		return auctionService.getAllAuctions().stream()
+				.filter(auction -> auction.getStartDate().isBefore(java.time.LocalDateTime.now())
+						&& auction.getEndDate().isAfter(java.time.LocalDateTime.now()))
+				.toList();
+		
+		
+	}
+	
 
 
 }

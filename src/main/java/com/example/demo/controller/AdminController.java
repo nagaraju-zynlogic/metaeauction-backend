@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -110,18 +111,16 @@ public class AdminController {
 	}
 	
 	// find all bids
-	@PostMapping("/bids/{auctionId}")
+	@GetMapping("/bids/{auctionId}")
 	public ResponseEntity<List<Bid>> getAllBids(@PathVariable("auctionId") Integer auctionId) {
+		log.info("Fetching bids for auction ID: " + auctionId);
 		Auction auction = auctionService.getAuctionById(auctionId);
+		log.info("Auction: " + auction);
 		if (auction == null) {
 			return ResponseEntity.notFound().build();
 		}
 		List<Bid> bids = bidService.getBidsByAuction(auction);
 		return ResponseEntity.ok(bids);
 	}
-	// 
-	
-	
-	
 	
 }
