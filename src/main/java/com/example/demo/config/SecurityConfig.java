@@ -33,6 +33,7 @@ public class SecurityConfig {
               "/api/auth/register",
               "/api/auth/login",
               "/auction/*",
+              "/admin/*",
              
              
               "/user/*",

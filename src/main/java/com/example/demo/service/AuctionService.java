@@ -42,7 +42,16 @@ public class AuctionService {
 	public List<Auction> getAuctionById(Users user) {
 		List<Auction> auctions = auctionRepository.findAllByUser(user);
 		
+		return auctions;
+	}
+
+	public Auction saveAuction(Auction auction) {
+		if (auction != null) {
+			return auctionRepository.save(auction);
+		}
+		
 		return null;
 	}
 
+	
 }
