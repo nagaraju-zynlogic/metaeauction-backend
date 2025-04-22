@@ -14,7 +14,10 @@ public class AdminService {
 
 	public Admin getAdminByEmail(String email) {
 		// Check if the user exists and has the admin role
-		
+		Admin admin = adminRepository.findByEmail(email);
+		if (admin != null) {
+			return admin;
+		}
 		return null;
 	}
 

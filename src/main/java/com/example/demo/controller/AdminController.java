@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import com.example.demo.service.BidService;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @RestController
 @RequestMapping("/admin")
 @Slf4j
@@ -27,28 +29,31 @@ public class AdminController {
 	private userRepository usersRepository;
 	@Autowired
 	private AuctionService auctionService;
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 	
 	@Autowired
 	private BidService bidService;
 	@Autowired
 	private AdminService adminService;
 	
-	// check admin credentials 
+	// Check admin credentials 
 	@PostMapping("/login")
-	public ResponseEntity<Admin> login(@RequestBody Admin admin) {
-		
-		// Check if the user exists and has the admin role
-		Admin existingAdmin = adminService.getAdminByEmail(admin.getEmail());
-		
-		if (existingAdmin != null && existingAdmin.getPasswordHash().equals(admin.getPasswordHash())) {
-			return ResponseEntity.ok(existingAdmin);
-		} else {
-			
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
-	
-		
+	public ResponseEntity<?> login(@RequestBody Admin adminRequest) {
+	    Admin existingAdmin = adminService.getAdminByEmail(adminRequest.getEmail());
+	    // no encryption for simplicity
+	    if (existingAdmin != null && existingAdmin.getPasswordHash().equals(adminRequest.getPasswordHash())) {
+	        // Generate a response with admin details
+	    
+	        return ResponseEntity.ok(existingAdmin);
+	    } else {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+	    }
 	}
+
+
+
+	
 	// insert auction 
 	@PostMapping("/insert/auction")
 	public ResponseEntity<Auction> insertAuction(@RequestBody Auction auction) {
