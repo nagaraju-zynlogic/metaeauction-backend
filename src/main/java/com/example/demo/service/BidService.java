@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Repository.BidRepository;
+import com.example.demo.entity.Auction;
 import com.example.demo.entity.Bid;
 
 @Service
@@ -16,6 +19,12 @@ public class BidService {
 		Bid savedBid = bidRepository.save(bid);
 		return savedBid;
 		
+	}
+
+	public List<Bid> getBidsByAuction(Auction auction) {
+		// Retrieve all bids for a specific auction
+		List<Bid> bids = bidRepository.findAllByAuction(auction);
+		return bids;
 	}
 
 }

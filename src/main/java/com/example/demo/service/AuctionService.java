@@ -28,7 +28,7 @@ public class AuctionService {
 		return upcomingAuctions;
 	}
 
-	public Auction getAuctionById(int auctionId) {
+	public Auction getAuctionById(Integer auctionId) {
 		
 		Auction auction = auctionRepository.findById(auctionId).orElse(null);
 		if (auction != null) {
@@ -39,7 +39,7 @@ public class AuctionService {
 		return null;
 	}
 
-	public List<Auction> getAuctionById(Users user) {
+	public List<Auction> getAuctionByUserId(Users user) {
 		List<Auction> auctions = auctionRepository.findAllByUser(user);
 		
 		return auctions;
@@ -51,6 +51,14 @@ public class AuctionService {
 		}
 		
 		return null;
+	}
+
+	public void deleteAuction(Integer id) {
+		if (id != null) {
+			auctionRepository.deleteById(id);
+		}
+		
+		
 	}
 
 	

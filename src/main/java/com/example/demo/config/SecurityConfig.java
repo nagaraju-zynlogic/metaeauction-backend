@@ -32,8 +32,9 @@ public class SecurityConfig {
               "/api/**",
               "/api/auth/register",
               "/api/auth/login",
-              "/auction/*",
-              "/admin/*",
+             
+              "/admin/**",
+              "/auction/**",
              
              
               "/user/*",

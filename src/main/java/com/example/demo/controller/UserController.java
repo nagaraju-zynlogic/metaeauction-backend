@@ -29,7 +29,7 @@ public class UserController {
 		if (user == null) {
 			return ResponseEntity.notFound().build();
 		}
-		List<Auction> auctions = auctionService.getAuctionById(user);
+		List<Auction> auctions = auctionService.getAuctionByUserId(user);
 		return ResponseEntity.ok(auctions);
 	}
 	
