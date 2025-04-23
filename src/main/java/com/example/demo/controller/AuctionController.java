@@ -43,7 +43,6 @@ public class AuctionController {
 						&& auction.getEndDate().isAfter(java.time.LocalDateTime.now()))
 				.toList();
 		
-		
 	}
 	
 

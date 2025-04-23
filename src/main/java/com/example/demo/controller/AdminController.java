@@ -16,6 +16,7 @@ import com.example.demo.Repository.userRepository;
 import com.example.demo.entity.Admin;
 import com.example.demo.entity.Auction;
 import com.example.demo.entity.Bid;
+import com.example.demo.entity.Users;
 import com.example.demo.service.AdminService;
 import com.example.demo.service.AuctionService;
 import com.example.demo.service.BidService;
@@ -122,5 +123,13 @@ public class AdminController {
 		List<Bid> bids = bidService.getBidsByAuction(auction);
 		return ResponseEntity.ok(bids);
 	}
-	
+	// find all users
+	@GetMapping("/users")
+	public ResponseEntity<List<Users>> getAllUsers() {
+		List<Users> users = usersRepository.findAll();
+		if (users.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(users);
+	}
 }
