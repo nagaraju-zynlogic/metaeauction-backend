@@ -16,7 +16,7 @@ import com.example.demo.service.AuctionService;
 public class AuctionController {
 	@Autowired
 	private AuctionService auctionService;
-	
+	// http://localhost:8080/auction/auctions
 	// find all auctions
 	@GetMapping("/auctions")
 	public List<Auction> getAllAuctions() {

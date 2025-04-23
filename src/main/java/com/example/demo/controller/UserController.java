@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +33,33 @@ public class UserController {
 		}
 		List<Auction> auctions = auctionService.getAuctionByUserId(user);
 		return ResponseEntity.ok(auctions);
+	}
+	
+	// update user  profile 
+	@PostMapping("/update/{userId}")
+	public ResponseEntity<Users> updateUser(@PathVariable("userId") Integer userId, @RequestBody Users updatedUser) {
+		Users user = usersRepository.findById(userId).orElse(null);
+		if (user == null) {
+			return ResponseEntity.notFound().build();
+		}
+		user.setUsername(updatedUser.getUsername());
+		user.setEmail(updatedUser.getEmail());		
+		usersRepository.save(user);
+		return ResponseEntity.ok(user);
+	}
+	// change user password after old password verification
+	@PostMapping("/changePassword/{userId}")
+	public ResponseEntity<String> changePassword(@PathVariable("userId") Integer userId, @RequestBody Users updatedUser) {
+		Users user = usersRepository.findById(userId).orElse(null);
+		if (user == null) {
+			return ResponseEntity.notFound().build();
+		}
+		if (!user.getPassword().equals(updatedUser.getPassword())) {
+			return ResponseEntity.badRequest().body("Old password is incorrect");
+		}
+		user.setPassword(updatedUser.getPassword());
+		usersRepository.save(user);
+		return ResponseEntity.ok("Password changed successfully");
 	}
 	
 
