@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,9 +55,6 @@ public class AdminController {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
 	    }
 	}
-
-
-
 	
 	// insert auction 
 	@PostMapping("/insert/auction")
@@ -98,7 +96,7 @@ public class AdminController {
 		}
 	
 	}
-	@PostMapping("/delete/auction")
+	@DeleteMapping("/delete/auction")
 	public ResponseEntity<String> deleteAuction(@RequestBody Auction auction) {
 		// Validate the auction details
 		if (auction.getId() == null) {
@@ -132,4 +130,5 @@ public class AdminController {
 		}
 		return ResponseEntity.ok(users);
 	}
+	
 }

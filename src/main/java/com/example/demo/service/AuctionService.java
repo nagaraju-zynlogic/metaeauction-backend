@@ -6,13 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Repository.AuctionRepository;
+import com.example.demo.Repository.BidRepository;
 import com.example.demo.entity.Auction;
+import com.example.demo.entity.Bid;
 import com.example.demo.entity.Users;
 
 @Service
 public class AuctionService {
 	@Autowired
 	private AuctionRepository auctionRepository;
+	@Autowired
+	private BidRepository bidRepository;
 
 	public List<Auction> getAllAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
@@ -40,9 +44,13 @@ public class AuctionService {
 	}
 
 	public List<Auction> getAuctionByUserId(Users user) {
-		List<Auction> auctions = auctionRepository.findAllByUser(user);
+		// find all actions bided by a user
+		 List<Bid> bids = bidRepository.findAllByUser(user);
+		 List<Auction> auctions = bids.stream()
+					.map(Bid::getAuction)
+					.toList();
+		 return auctions;
 		
-		return auctions;
 	}
 
 	public Auction saveAuction(Auction auction) {
@@ -59,6 +67,12 @@ public class AuctionService {
 		}
 		
 		
+	}
+
+	public List<Auction> getWonAuctionByUserId(Users user) {
+		// find all actions won by a user from acution table
+		List<Auction> auctions = auctionRepository.findAuctionsWonByUser(user.getId());
+		return auctions;
 	}
 
 	

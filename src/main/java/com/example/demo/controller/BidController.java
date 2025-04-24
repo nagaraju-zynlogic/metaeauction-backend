@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,7 +70,21 @@ public class BidController {
 	        log.info("Bid saved successfully");
 	        return ResponseEntity.ok(savedBid);
 	    }
-	    //
+	    // get bids by auction id and user id
+	    @GetMapping("/getBids/{userId}/{auctionId}")
+	    public ResponseEntity<List<Bid>> getBidsByUserAndAuction(@PathVariable("userId") int userId,
+	                                                             @PathVariable("auctionId") int auctionId) {
+	        Users user = usersRepository.findById(userId).orElse(null);
+	        Auction auction = auctionService.getAuctionById(auctionId);
+
+	        if (user == null || auction == null) {
+	            return ResponseEntity.badRequest().body(null);
+	        }
+
+	        List<Bid> bids = bidService.getBidsByUserAndAuction(user, auction);
+	        return ResponseEntity.ok(bids);
+	    }
+	    
 	   
 }
 
