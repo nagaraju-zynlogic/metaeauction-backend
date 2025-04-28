@@ -84,6 +84,19 @@ public class BidController {
 	        List<Bid> bids = bidService.getBidsByUserAndAuction(user, auction);
 	        return ResponseEntity.ok(bids);
 	    }
+	    // get all bids by auction id
+	    @GetMapping("/getAllBids/{auctionId}")
+	    public ResponseEntity<List<Bid>> getBidsByAuction(@PathVariable("auctionId") int auctionId) {
+	        Auction auction = auctionService.getAuctionById(auctionId);
+
+	        if (auction == null) {
+	            return ResponseEntity.badRequest().body(null);
+	        }
+
+	        List<Bid> bids = bidService.getBidsByAuction(auction);
+	        return ResponseEntity.ok(bids);
+	    }
+	    // get all bids by user id
 	    
 	   
 }

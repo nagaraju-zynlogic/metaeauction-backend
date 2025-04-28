@@ -93,6 +93,11 @@ public class UserController {
 		if (user == null) {
 			return ResponseEntity.notFound().build();
 		}
+		//check if user has any auctions
+		List<Auction> auctions = auctionService.getAuctionByUserId(user);
+		if (!auctions.isEmpty()) {
+			return ResponseEntity.badRequest().body("User has auctions, cannot delete");
+		}
 		usersRepository.delete(user);
 		return ResponseEntity.ok("User deleted successfully");
 	}

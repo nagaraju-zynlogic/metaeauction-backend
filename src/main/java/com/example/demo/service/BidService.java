@@ -35,4 +35,10 @@ public class BidService {
 	
 	}
 
+	public Bid getBidById(Integer bidId) {
+		// Retrieve a specific bid by its ID
+		Bid bid = bidRepository.findById(bidId).orElse(null);
+		return bid;
+	}
+
 }

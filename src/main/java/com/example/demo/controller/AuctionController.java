@@ -44,6 +44,16 @@ public class AuctionController {
 				.toList();
 		
 	}
+	// find auctions ended
+	@GetMapping("/endedAuctions")
+	public List<Auction> getEndedAuctions() {
+		return auctionService.getAllAuctions().stream()
+				.filter(auction -> auction.getEndDate().isBefore(java.time.LocalDateTime.now()))
+				.toList();
+		
+	}
+	
+	
 	
 
 
