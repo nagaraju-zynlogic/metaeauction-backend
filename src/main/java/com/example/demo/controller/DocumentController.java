@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -87,16 +88,16 @@ public class DocumentController {
         byte[] fileData = documentService.downloadDocument(fullPath);
 
         if (fileData == null) {
-            return ResponseEntity.notFound().build(); // 404
+            return ResponseEntity.notFound().build();
         }
 
         MediaType contentType = getContentType(filename);
 
         return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                 .contentType(contentType)
                 .body(fileData);
     }
-
     // List files for a user
     @GetMapping("/list/{userId}")
     public ResponseEntity<List<String>> listFilesByUserId(@PathVariable String userId) {
@@ -162,18 +163,29 @@ public class DocumentController {
 
 
     // Detect content type from filename
+	/*    private MediaType getContentType(String filename) {
+	        if (filename.endsWith(".pdf")) {
+	            return MediaType.APPLICATION_PDF;
+	        } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+	            return MediaType.IMAGE_JPEG;
+	        } else if (filename.endsWith(".png")) {
+	            return MediaType.IMAGE_PNG;
+	        } else {
+	            return MediaType.APPLICATION_OCTET_STREAM;
+	        }
+	    }*/
     private MediaType getContentType(String filename) {
-        if (filename.endsWith(".pdf")) {
+        if (filename.toLowerCase().endsWith(".pdf")) {
             return MediaType.APPLICATION_PDF;
-        } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+        } else if (filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) {
             return MediaType.IMAGE_JPEG;
-        } else if (filename.endsWith(".png")) {
+        } else if (filename.toLowerCase().endsWith(".png")) {
             return MediaType.IMAGE_PNG;
-        } else {
-            return MediaType.APPLICATION_OCTET_STREAM;
         }
+        return MediaType.APPLICATION_OCTET_STREAM;
     }
-
+    
+    
     // Response wrapper
     static class ApiResponse {
         private String status;
