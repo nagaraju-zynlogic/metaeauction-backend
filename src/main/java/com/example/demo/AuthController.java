@@ -3,16 +3,21 @@ package com.example.demo;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Repository.userRepository;
 import com.example.demo.entity.LoginRequest;
 import com.example.demo.entity.RegisterRequest;
 import com.example.demo.entity.Users;
+import com.example.demo.service.AuctionService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,6 +25,9 @@ public class AuthController {
 
     @Autowired
     private userRepository userrepository;
+    
+    @Autowired
+    private AuctionService auctionService;
     
     
     
@@ -86,7 +94,7 @@ public class AuthController {
         newUser.setEmail(email);
 
         newUser.setPassword(hashedPassword);
-
+        newUser.setActive(1); // Set active status to 1 (active)
         userrepository.save(newUser);
         
 
@@ -109,7 +117,8 @@ public class AuthController {
                 userData.put("username", user.getUsername());
                 userData.put("email", user.getEmail());
 //                userData.put("role", user.getRole()); // assuming you store role
-
+                userData.put("status",user.getStatus());
+                auctionService.updateAuctionStatus();
                 return ResponseEntity.ok(userData);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
@@ -119,6 +128,9 @@ public class AuthController {
         }
     }
 
+    
+    
+    
 
     
 }

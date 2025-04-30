@@ -38,7 +38,8 @@ public class SecurityConfig {
              
              
               "/user/**",
-              "/bids/**"
+              "/bids/**",
+              "/documents/**"
             ).permitAll()
             .anyRequest().authenticated()
           )

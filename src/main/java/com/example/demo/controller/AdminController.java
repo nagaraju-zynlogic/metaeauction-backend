@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Repository.userRepository;
 import com.example.demo.dto.AcceptBidDTO;
-import com.example.demo.dto.AuctionReqFrom;
 import com.example.demo.entity.Admin;
 import com.example.demo.entity.Auction;
 import com.example.demo.entity.Bid;
@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/admin")
 @Slf4j
+
 public class AdminController {
 	
 	private static final String ADMIN_ROLE = "ADMIN";
@@ -53,7 +54,7 @@ public class AdminController {
 	    // no encryption for simplicity
 	    if (existingAdmin != null && existingAdmin.getPasswordHash().equals(adminRequest.getPasswordHash())) {
 	        // Generate a response with admin details
-	    
+	    	auctionService.updateAuctionStatus();
 	        return ResponseEntity.ok(existingAdmin);
 	    } else {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
@@ -64,14 +65,17 @@ public class AdminController {
 	@PostMapping("/inserting/auction")
 	public ResponseEntity<?> insertAuction(@RequestBody Auction auction) {
 		// Validate the auction details
-		if (auction.getStartDate() == null || auction.getEndDate() == null || auction.getStartDate().isAfter(auction.getEndDate()) 
-				|| auction.getStartDate().isBefore(java.time.LocalDateTime.now().minusMinutes(5))) {
+		// || auction.getStartDate().isBefore(java.time.LocalDateTime.now().minusMinutes(10))
+		if (auction.getStartDate() == null || auction.getEndDate() == null || auction.getStartDate().isAfter(auction.getEndDate())) {
+			log.info("Invalid auction details");
 			return ResponseEntity.badRequest().body("Invalid Action details" );
 		}
 		
-		// Save the auction
-		Auction newAuction = auctionService.saveAuction(auction);
 		
+		// Save the auction
+		
+		Auction newAuction = auctionService.saveAuction(auction);
+		log.info("Auction saved successfully");
 		
 		if (newAuction != null) {
 			return ResponseEntity.ok(newAuction);
@@ -80,6 +84,8 @@ public class AdminController {
 		}
 	
 	}
+	
+	
 	
 	
 	
@@ -132,11 +138,12 @@ public class AdminController {
 	
 	
 	// update auction
-	@PostMapping("/update/auction")
+	@PutMapping("/update/auction")
 	public ResponseEntity<Auction> updateAuction(@RequestBody Auction auction) {
 		// Validate the auction details
 		if (auction.getStartDate() == null || auction.getEndDate() == null || auction.getStartDate().isAfter(auction.getEndDate())) {
-				return ResponseEntity.badRequest().body(null);
+			log.info("Invalid auction details");
+			return ResponseEntity.badRequest().body(null);
 		}
 		
 		// Save the auction
@@ -154,12 +161,13 @@ public class AdminController {
 	public ResponseEntity<String> deleteAuction(@RequestBody Auction auction) {
 		// Validate the auction details
 		if (auction.getId() == null) {
+			log.info("Invalid auction details");
 			return ResponseEntity.badRequest().body("Auction ID is required");
 		}
 		
 		// Delete the auction
 		auctionService.deleteAuction(auction.getId());
-		
+		log.info("Auction deleted successfully");
 		return ResponseEntity.ok("Auction deleted successfully");
 	}
 	
@@ -170,6 +178,7 @@ public class AdminController {
 		Auction auction = auctionService.getAuctionById(auctionId);
 		log.info("Auction: " + auction);
 		if (auction == null) {
+			log.error("Auction not found");
 			return ResponseEntity.notFound().build();
 		}
 		List<Bid> bids = bidService.getBidsByAuction(auction);
@@ -178,25 +187,51 @@ public class AdminController {
 	// find all users
 	@GetMapping("/users")
 	public ResponseEntity<List<Users>> getAllUsers() {
-		List<Users> users = usersRepository.findAll();
+		List<Users> users = usersRepository.findAllUsers();
+		log.info("Fetching all users");
 		if (users.isEmpty()) {
+			log.error("No users found");
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(users);
 	}
 	// delete user by id
+//	@DeleteMapping("/delete/user/{userId}")
+//	public ResponseEntity<String> deleteUser(@PathVariable("userId") Integer userId) {
+//		Users user = usersRepository.findById(userId).orElse(null);
+//		if (user == null) {
+//			return ResponseEntity.notFound().build();
+//		}
+//		List<Auction> auctions = auctionService.getAuctionByUserId(user);
+//		if (!auctions.isEmpty()) {
+//			return ResponseEntity.badRequest().body("User has auctions, cannot delete");
+//		}
+//		
+//		usersRepository.delete(user);
+//		return ResponseEntity.ok("User deleted successfully");
+//	}
+	
+	// delete user by id by setting active to 0
 	@DeleteMapping("/delete/user/{userId}")
 	public ResponseEntity<String> deleteUser(@PathVariable("userId") Integer userId) {
 		Users user = usersRepository.findById(userId).orElse(null);
 		if (user == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.badRequest().body("User not found");
 		}
-		List<Auction> auctions = auctionService.getAuctionByUserId(user);
-		if (!auctions.isEmpty()) {
-			return ResponseEntity.badRequest().body("User has auctions, cannot delete");
-		}
+		user.setActive(0);
 		
-		usersRepository.delete(user);
+		// handle exception if user has any auctions
+		try {
+			List<Auction> auctions = auctionService.getAuctionByUserId(user);
+			if (!auctions.isEmpty()) {
+				return ResponseEntity.badRequest().body("User has auctions, cannot delete");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Error occurred while checking auctions");
+		}
+		usersRepository.save(user);
+		log.info("User deleted successfully");
+		
 		return ResponseEntity.ok("User deleted successfully");
 	}
 	
@@ -205,6 +240,7 @@ public class AdminController {
 	public ResponseEntity<String> acceptBid(@RequestBody AcceptBidDTO bidDTO) {
 		// Validate the bid details
 		if (bidDTO.getBidId() == null || bidDTO.getAuctionId() == null || bidDTO.getUserId() == null || bidDTO.getBidAmount() <= 0) {
+			log.info("Invalid bid details");
 			return ResponseEntity.badRequest().body("Invalid bid details");
 		}
 		// reject reamining all bids
@@ -212,13 +248,16 @@ public class AdminController {
 		for (Bid bid : bids) {
 			if (bid.getId() != bidDTO.getBidId()) {
 				bid.setBidStatus("REJECTED");
-				bidService.saveBid(bid);
+//				bidService.saveBid(bid);
+				
 			}
 		}
+		bidService.saveAllBids(bids);
 		// Fetch the bid
 		Bid bid = bidService.getBidById(bidDTO.getBidId());
 		if (bid == null) {
-			return ResponseEntity.notFound().build();
+			log.error("Bid not found");
+			return ResponseEntity.badRequest().body("Bid not found");
 		}
 		
 		Auction  eacution = auctionService.getAuctionById(bidDTO.getAuctionId());
@@ -233,7 +272,7 @@ public class AdminController {
 		// Accept the bid
 		bid.setBidStatus("ACCEPTED");
 		bidService.saveBid(bid);
-		
+		log.info("Bid accepted successfully");
 		
 		return ResponseEntity.ok("Bid accepted successfully");
 
@@ -246,17 +285,56 @@ public class AdminController {
 		// Fetch the bid
 		Bid bid = bidService.getBidById(bidId);
 		if (bid == null) {
-			return ResponseEntity.notFound().build();
+			log.error("Bid not found");
+			return ResponseEntity.badRequest().body("Bid not found");
 		}
 		
 		// Reject the bid
 		bid.setBidStatus("REJECTED");
 		bidService.saveBid(bid);
+		log.info("Bid rejected successfully");
 		
 		return ResponseEntity.ok("Bid rejected successfully");
 	}
 	
+	// retrieve user by setting active to 1
+	@PostMapping("/active/user/{userId}")
+	public ResponseEntity<String> retrieveUser(@PathVariable("userId") Integer userId) {
+		Users user = usersRepository.findInactiveUserById(userId).orElse(null);
+		if (user == null) {
+			return ResponseEntity.badRequest().body("User not found");
+		}
+		// check if user active
+		if (user.getActive() == 1) {
+			return ResponseEntity.badRequest().body("User is already active");
+		}
+		user.setActive(1);
+		usersRepository.save(user);
+		log.info("User retrieved successfully");
+		
+		return ResponseEntity.ok("User retrieved successfully");
+	}
 	
+	
+	// verify user  by setting user status as a verified
+	@PostMapping("/verify/user/{userId}")
+	public ResponseEntity<String> verifyUser(@PathVariable Integer userId){
+		Optional<Users> user = usersRepository.findById(userId);
+		if (user.get().getStatus().equalsIgnoreCase("verified")) {
+			log.info("user alredy verified");
+			return ResponseEntity.ok("user already verifyed");
+		}
+		else if(user.isPresent()) {
+			user.get().setStatus("verified");
+		
+			usersRepository.save(user.get());
+			log.info("User verified");
+			return ResponseEntity.ok("User verified");
+		}
+		else
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		
+	}
 	
 	
 	

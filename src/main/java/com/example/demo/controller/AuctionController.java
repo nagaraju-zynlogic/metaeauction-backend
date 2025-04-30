@@ -20,6 +20,7 @@ public class AuctionController {
 	// find all auctions
 	@GetMapping("/auctions")
 	public List<Auction> getAllAuctions() {
+		updateAuctionStatus();
 		return auctionService.getAllAuctions();
 	}
 	
@@ -27,17 +28,20 @@ public class AuctionController {
 	// find all upcoming auctions
 	@GetMapping("/upcomingAuctions")
 	public List<Auction> getUpcomingAuctions() {
+		updateAuctionStatus();
 		return auctionService.getUpcomingAuctions();
 	}
 	// find auction by id
 	@GetMapping("/auctionBy/{id}")
 	public Auction getAuctionById(@PathVariable("id") Integer auctionId) {
+		updateAuctionStatus();
 		return auctionService.getAuctionById(auctionId);
 	}
 	
 	// find auctions currently running
 	@GetMapping("/runningAuctions")
 	public List<Auction> getRunningAuctions() {
+		updateAuctionStatus();
 		return auctionService.getAllAuctions().stream()
 				.filter(auction -> auction.getStartDate().isBefore(java.time.LocalDateTime.now())
 						&& auction.getEndDate().isAfter(java.time.LocalDateTime.now()))
@@ -47,13 +51,18 @@ public class AuctionController {
 	// find auctions ended
 	@GetMapping("/endedAuctions")
 	public List<Auction> getEndedAuctions() {
+		updateAuctionStatus();
 		return auctionService.getAllAuctions().stream()
 				.filter(auction -> auction.getEndDate().isBefore(java.time.LocalDateTime.now()))
 				.toList();
 		
 	}
 	
-	
+	// update auction status based on start and end date time 
+	@GetMapping("/updateAuctionStatus")
+	public void updateAuctionStatus() {
+		 auctionService.updateAuctionStatus();
+	}
 	
 
 

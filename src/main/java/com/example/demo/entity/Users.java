@@ -2,8 +2,9 @@ package com.example.demo.entity;
 
 import java.util.List;
 
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import lombok.Data;
 @Table(name = "Users12", schema = "public")
 
 @Data
-
+@Where(clause = "active = 1")
 public class Users {
 
     @Id
@@ -32,9 +33,14 @@ public class Users {
    
     private String status;
     
+    
+    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonBackReference
     private List<Auction> auctions;
+    
+    // active user
+    private Integer active;
 
     // Default constructor setting the status to 'pending'
     public Users() {

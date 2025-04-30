@@ -34,7 +34,7 @@ public class BidController {
 	    private  BidService bidService;
 	    
 	    @PostMapping("/bid/{userId}/{auctionId}/{bidAmount}")
-	    public ResponseEntity<Bid> placeBid(@PathVariable("userId") int userId,
+	    public ResponseEntity<?> placeBid(@PathVariable("userId") int userId,
 	                                           @PathVariable("auctionId") int auctionId,
 	                                           @PathVariable("bidAmount") double bidAmount) {
 	        // Fetch the user and auction details
@@ -45,11 +45,19 @@ public class BidController {
 	        Auction auction = auctionService.getAuctionById(auctionId);
 	        
 
-	        if (user == null || auction == null) {
+	        if (user == null || auction == null ) {
 	        	log.error("User or Auction not found");
-                 	            return ResponseEntity.badRequest().body(null);
+                 	            return ResponseEntity.badRequest().body("user or auction not found");
 	        }
-
+	        // chack user has verified or not
+	        if(!user.getStatus().equalsIgnoreCase("verified")) {
+	        	log.info("user not verified");
+	        	return ResponseEntity.badRequest().body("user not verified");
+	        }
+	        		        	
+	        
+	        
+	        
 	        // Check if the auction is active
 	        if (auction.getStartDate().isAfter(LocalDateTime.now()) || auction.getEndDate().isBefore(LocalDateTime.now())) {
 	        		log.error("Auction is not active");

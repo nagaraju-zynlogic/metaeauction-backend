@@ -41,4 +41,10 @@ public class BidService {
 		return bid;
 	}
 
+	public void saveAllBids(List<Bid> bids) {
+
+		// Save a list of bids to the database
+		bidRepository.saveAll(bids);
+	}
+
 }

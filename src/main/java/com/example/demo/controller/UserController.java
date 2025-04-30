@@ -39,20 +39,20 @@ public class UserController {
 	
 	// find user by id
 	@GetMapping("/userBy/{userId}")
-	public ResponseEntity<Users> getUserById(@PathVariable("userId") Integer userId) {
+	public ResponseEntity<?> getUserById(@PathVariable("userId") Integer userId) {
 		Users user = usersRepository.findById(userId).orElse(null);
 		if (user == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.badRequest().body("User not found");
 		}
 		return ResponseEntity.ok(user);
 	}
 	
 	// update user  profile 
 	@PutMapping("/update/{userId}")
-	public ResponseEntity<Users> updateUser(@PathVariable("userId") Integer userId, @RequestBody Users updatedUser) {
+	public ResponseEntity<?> updateUser(@PathVariable("userId") Integer userId, @RequestBody Users updatedUser) {
 		Users user = usersRepository.findById(userId).orElse(null);
 		if (user == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.badRequest().body("User not found");
 		}
 		user.setUsername(updatedUser.getUsername());
 		
@@ -79,6 +79,7 @@ public class UserController {
 	public ResponseEntity<List<Auction>> getWonAuctions(@PathVariable("userId") int userId) {
 		Users user = usersRepository.findById(userId).orElse(null);
 		if (user == null) {
+		//	return new ResponseEntity<>(HttpStatus.NOT_FOUND,"User not found",404);
 			return ResponseEntity.notFound().build();
 		}
 		List<Auction> auctions = auctionService.getWonAuctionByUserId(user);
@@ -87,18 +88,44 @@ public class UserController {
 	}
 	
 	// delete user by id
+//	@DeleteMapping("/delete/{userId}")
+//	public ResponseEntity<String> deleteUser(@PathVariable("userId") Integer userId) {
+//		Users user = usersRepository.findById(userId).orElse(null);
+//		if (user == null) {
+//			return ResponseEntity.notFound().build();
+//		}
+//		//check if user has any auctions
+//		List<Auction> auctions = auctionService.getAuctionByUserId(user);
+//		if (!auctions.isEmpty()) {
+//			return ResponseEntity.badRequest().body("User has auctions, cannot delete");
+//		}
+//		usersRepository.delete(user);
+//		return ResponseEntity.ok("User deleted successfully");
+//	}
+	
+	// delte user by id by setting active to 0
 	@DeleteMapping("/delete/{userId}")
 	public ResponseEntity<String> deleteUser(@PathVariable("userId") Integer userId) {
 		Users user = usersRepository.findById(userId).orElse(null);
 		if (user == null) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.badRequest().body("User not found");
 		}
-		//check if user has any auctions
-		List<Auction> auctions = auctionService.getAuctionByUserId(user);
-		if (!auctions.isEmpty()) {
-			return ResponseEntity.badRequest().body("User has auctions, cannot delete");
+		user.setActive(0);
+		
+		
+		// handle exception if user has any auctions
+		try {
+			List<Auction> auctions = auctionService.getAuctionByUserId(user);
+			if (!auctions.isEmpty()) {
+				return ResponseEntity.badRequest().body("User has auctions, cannot delete");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Error occurred while checking auctions");
 		}
-		usersRepository.delete(user);
+		usersRepository.save(user);
+
+		
+		
 		return ResponseEntity.ok("User deleted successfully");
 	}
 

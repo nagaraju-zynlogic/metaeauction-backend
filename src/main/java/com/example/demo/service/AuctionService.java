@@ -10,6 +10,7 @@ import com.example.demo.Repository.BidRepository;
 import com.example.demo.entity.Auction;
 import com.example.demo.entity.Bid;
 import com.example.demo.entity.Users;
+import com.example.demo.statusEnum.AuctionStatus;
 
 @Service
 public class AuctionService {
@@ -73,6 +74,30 @@ public class AuctionService {
 		// find all actions won by a user from acution table
 		List<Auction> auctions = auctionRepository.findAuctionsWonByUser(user.getId());
 		return auctions;
+	}
+	// based on start and end date time update auction status
+	public void  updateAuctionStatus() {
+		List<Auction> auctions = auctionRepository.findAll();
+		// dont update auction status if statuc is CANCELED AND COMPLETED
+		for (Auction auction : auctions) {
+			if (auction.getStatus() != AuctionStatus.CANCELED && auction.getStatus() != AuctionStatus.COMPLETED) {
+				
+				if (auction.getStartDate().isBefore(java.time.LocalDateTime.now())
+						&& auction.getEndDate().isAfter(java.time.LocalDateTime.now()) && auction.getStatus() != AuctionStatus.ACTIVE) {
+					auction.setStatus(AuctionStatus.ACTIVE);
+					auctionRepository.save(auction);
+				} else if (auction.getEndDate().isBefore(java.time.LocalDateTime.now()) && auction.getStatus() != AuctionStatus.COMPLETED)  {
+					auction.setStatus(AuctionStatus.COMPLETED);
+					auctionRepository.save(auction);
+				} else if (auction.getStartDate().isAfter(java.time.LocalDateTime.now()) && auction.getStatus() != AuctionStatus.UPCOMING) {
+					auction.setStatus(AuctionStatus.UPCOMING);
+					auctionRepository.save(auction);
+				}
+				
+			}
+		}
+		
+		
 	}
 
 	
