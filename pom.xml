@@ -52,9 +52,9 @@
 		<dependency>
     <groupId>org.postgresql</groupId>
     <artifactId>postgresql</artifactId>
-   <!-- <version>42.7.3</version>  latest as of April 2025 -->
+    <version>42.7.3</version>  
 </dependency>
-<!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-webmvc</artifactId>
