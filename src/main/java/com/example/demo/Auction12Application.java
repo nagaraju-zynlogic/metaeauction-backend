@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServic
 public class Auction12Application {
 
 	
-	
 	public static void main(String[] args) {
 		SpringApplication.run(Auction12Application.class, args);
 	}

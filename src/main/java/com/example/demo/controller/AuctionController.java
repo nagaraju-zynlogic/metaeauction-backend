@@ -52,6 +52,8 @@ public class AuctionController {
 	@GetMapping("/endedAuctions")
 	public List<Auction> getEndedAuctions() {
 		updateAuctionStatus();
+		// filter auctions that have ended with time
+		
 		return auctionService.getAllAuctions().stream()
 				.filter(auction -> auction.getEndDate().isBefore(java.time.LocalDateTime.now()))
 				.toList();

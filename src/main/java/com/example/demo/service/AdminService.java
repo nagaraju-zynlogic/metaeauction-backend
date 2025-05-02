@@ -21,4 +21,9 @@ public class AdminService {
 		return null;
 	}
 
+	public void saveAdmin(Admin admin) {
+		// Save the admin to the database
+		adminRepository.save(admin);		
+	}
+
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class AuctionService {
 	private AuctionRepository auctionRepository;
 	@Autowired
 	private BidRepository bidRepository;
+	
+	@Autowired
+	private BidService bidService;
 
 	public List<Auction> getAllAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
@@ -94,11 +98,32 @@ public class AuctionService {
 					auctionRepository.save(auction);
 				}
 				
+				
+				
 			}
+			
 		}
+		bidService.updateBidStatusAndTime();	
+		
 		
 		
 	}
+	// update auction end time  plus mins
+	public Auction updateAuctionEndTime(Integer auctionId, int minutesToAdd) {
+		    if (auctionId != null) {
+		        Auction auction = auctionRepository.findById(auctionId).orElse(null);
+		        if (auction != null) {
+		            auction.setEndDate(auction.getEndDate().plusMinutes(minutesToAdd));
+		            return auctionRepository.save(auction);
+		        }
+		    }
+		    return null;
+		
+	}
+	
+	
+	
 
 	
 }
+ 

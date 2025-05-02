@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,14 @@ import com.example.demo.entity.Auction;
 import com.example.demo.entity.Bid;
 import com.example.demo.entity.Users;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class BidService {
 	@Autowired
 	private BidRepository bidRepository;
+	
 
 	public Bid saveBid(Bid bid) {
 		// Save the bid to the database
@@ -45,6 +50,26 @@ public class BidService {
 
 		// Save a list of bids to the database
 		bidRepository.saveAll(bids);
+	}
+	
+	// based on auction start time update action details for auto bid
+	public void updateBidStatusAndTime() {
+
+		List<Bid> allBids = bidRepository.findAll();
+
+	    for (Bid bid : allBids) {
+	        Auction auction = bid.getAuction();
+
+	        // Check if the auction has started
+	        if (auction.getStartDate().isBefore(LocalDateTime.now()) && auction.getStatus().equals("SCEHDULED")) {
+	        	bid.setBidStatus("PLACED");
+	        	bid.setBidTime(LocalDateTime.now());
+	        }
+	    }
+
+	    // Save the updated bids back to the database
+	    bidRepository.saveAll(allBids);
+
 	}
 
 }

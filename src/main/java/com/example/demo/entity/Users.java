@@ -39,12 +39,12 @@ public class Users {
     @JsonBackReference
     private List<Auction> auctions;
     
-    // active user
+    // active user	
     private Integer active;
 
     // Default constructor setting the status to 'pending'
     public Users() {
-        this.status = "pending";  // Default value
+        this.status = "Not Uploaded";  // Default value
     }
 }
    

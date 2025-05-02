@@ -64,7 +64,15 @@ public class BidController {
 	        			            return ResponseEntity.badRequest().body(null);
 	        }
 
+	        // check if auction end time is less than 3 mins and incrse 3 mins
+			if (java.time.Duration.between(LocalDateTime.now(), auction.getEndDate()).toMinutes() < 3) {
+				//	auction.setEndDate(auction.getEndDate().plusMinutes(3));
+					auctionService.updateAuctionEndTime(auction.getId(), 3);
+			}
+	        
 	        // Create a new bid
+
+	        
 	        
 	        Bid bid = new Bid();
 	        
@@ -76,7 +84,10 @@ public class BidController {
 	        // Save the bid
 	        Bid savedBid = bidService.saveBid(bid);
 	        log.info("Bid saved successfully");
-	        return ResponseEntity.ok(savedBid);
+
+
+
+	        return ResponseEntity.ok(savedBid); 
 	    }
 	    // get bids by auction id and user id
 	    @GetMapping("/getBids/{userId}/{auctionId}")
@@ -104,8 +115,54 @@ public class BidController {
 	        List<Bid> bids = bidService.getBidsByAuction(auction);
 	        return ResponseEntity.ok(bids);
 	    }
-	    // get all bids by user id
-	    
+	   // place a bid status  with Sheduled
+	    @PostMapping("/sheduled/bid/{userId}/{auctionId}/{bidAmount}")
+	    public ResponseEntity<?> placeSheduleBid(@PathVariable("userId") int userId,
+	                                           @PathVariable("auctionId") int auctionId,
+	                                           @PathVariable("bidAmount") double bidAmount) {
+	        // Fetch the user and auction details
+	    	log.info("userId: " + userId);
+	    	log.info("auctionId: " + auctionId);
+	    	log.info("bidAmount: " + bidAmount);
+	        Users user = usersRepository.findById(userId).orElse(null);
+	        Auction auction = auctionService.getAuctionById(auctionId);
+	        
+
+	        if (user == null || auction == null ) {
+	        	log.error("User or Auction not found");
+                 	            return ResponseEntity.badRequest().body("user or auction not found");
+	        }
+	        // chack user has verified or not
+	        if(!user.getStatus().equalsIgnoreCase("verified")) {
+	        	log.info("user not verified");
+	        	return ResponseEntity.badRequest().body("user not verified");
+	        }
+	        // chcke it is upcomming auction or not
+	        
+	        if(!auction.getStartDate().isAfter(LocalDateTime.now())) {
+	        	log.info("auction not upcomming");
+	        	return ResponseEntity.badRequest().body("auction not upcomming");
+	        	
+	        }
+	        
+	        
+	      // Create a new bid       
+	        Bid bid = new Bid();
+	        
+	        bid.setUser(user);
+	        bid.setAuction(auction);
+	        bid.setBidAmount(bidAmount);
+	        bid.setBidStatus("scehduled");
+	        bid.setBidTime(LocalDateTime.now());
+
+	        // Save the bid
+	        Bid savedBid = bidService.saveBid(bid);
+	        log.info("Bid scehduled successfully");
+
+	        return ResponseEntity.ok(savedBid); 
+	    }
+
+		
 	   
 }
 

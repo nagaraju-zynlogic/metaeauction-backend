@@ -336,6 +336,28 @@ public class AdminController {
 		
 	}
 	
+	// register admin
+	@PostMapping("/register")
+	public ResponseEntity<?> registerAdmin(@RequestBody Admin admin) {
+		// Validate the admin details
+		if (admin.getEmail() == null || admin.getPasswordHash() == null) {
+			log.info("Invalid admin details");
+			return ResponseEntity.badRequest().body("Invalid admin details");
+		}
+		
+		// Check if email already exists
+		if (adminService.getAdminByEmail(admin.getEmail()) != null) {
+			log.info("Email already exists");
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+		}
+		
+		// Save the admin
+		adminService.saveAdmin(admin);
+		log.info("Admin registered successfully");
+		
+		return ResponseEntity.ok("Admin registered successfully");
+	}
+	
 	
 	
 }
