@@ -51,6 +51,7 @@ public class AdminController {
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody Admin adminRequest) {
 	    Admin existingAdmin = adminService.getAdminByEmail(adminRequest.getEmail());
+	    auctionService.updateAuctionStatus();
 	    // no encryption for simplicity
 	    if (existingAdmin != null && existingAdmin.getPasswordHash().equals(adminRequest.getPasswordHash())) {
 	        // Generate a response with admin details
@@ -141,6 +142,7 @@ public class AdminController {
 	@PutMapping("/update/auction")
 	public ResponseEntity<Auction> updateAuction(@RequestBody Auction auction) {
 		// Validate the auction details
+		
 		if (auction.getStartDate() == null || auction.getEndDate() == null || auction.getStartDate().isAfter(auction.getEndDate())) {
 			log.info("Invalid auction details");
 			return ResponseEntity.badRequest().body(null);
@@ -174,6 +176,7 @@ public class AdminController {
 	// find all bids
 	@GetMapping("/bids/{auctionId}")
 	public ResponseEntity<List<Bid>> getAllBids(@PathVariable("auctionId") Integer auctionId) {
+		
 		log.info("Fetching bids for auction ID: " + auctionId);
 		Auction auction = auctionService.getAuctionById(auctionId);
 		log.info("Auction: " + auction);

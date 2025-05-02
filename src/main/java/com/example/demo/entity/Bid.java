@@ -24,7 +24,7 @@ public class Bid {
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
-    private String bidStatus;
+    private String bidStatus = "PLACED";
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // <-- this will be a foreign key now

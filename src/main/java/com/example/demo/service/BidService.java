@@ -61,14 +61,18 @@ public class BidService {
 	        Auction auction = bid.getAuction();
 
 	        // Check if the auction has started
-	        if (auction.getStartDate().isBefore(LocalDateTime.now()) && auction.getStatus().equals("SCEHDULED")) {
+	        if (auction.getStartDate().isBefore(LocalDateTime.now()) && bid.getBidStatus().equals("SCEHDULED") ) {
 	        	bid.setBidStatus("PLACED");
-	        	bid.setBidTime(LocalDateTime.now());
+	        	bid.setBidTime(auction.getStartDate());
 	        }
 	    }
 
 	    // Save the updated bids back to the database
 	    bidRepository.saveAll(allBids);
+
+
+
+
 
 	}
 
