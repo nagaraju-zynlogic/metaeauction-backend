@@ -152,7 +152,7 @@ public class BidController {
 	        bid.setUser(user);
 	        bid.setAuction(auction);
 	        bid.setBidAmount(bidAmount);
-	        bid.setBidStatus("scehduled");
+	        bid.setBidStatus("SCEHDULED");
 	        bid.setBidTime(LocalDateTime.now());
 
 	        // Save the bid

@@ -82,6 +82,7 @@ public class AuctionService {
 	// based on start and end date time update auction status
 	public void  updateAuctionStatus() {
 		List<Auction> auctions = auctionRepository.findAll();
+		bidService.updateBidStatusAndTime();
 		// dont update auction status if statuc is CANCELED AND COMPLETED
 		for (Auction auction : auctions) {
 			if (auction.getStatus() != AuctionStatus.CANCELED && auction.getStatus() != AuctionStatus.COMPLETED) {
@@ -103,7 +104,7 @@ public class AuctionService {
 			}
 			
 		}
-		bidService.updateBidStatusAndTime();	
+			
 		
 		
 		
