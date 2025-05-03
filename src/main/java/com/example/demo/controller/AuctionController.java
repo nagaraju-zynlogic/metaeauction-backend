@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,9 @@ import com.example.demo.service.AuctionService;
 @RestController
 @RequestMapping("/auction")
 public class AuctionController {
-
+	private  LocalDateTime NOW = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
 	@Autowired
 	private AuctionService auctionService;
-	private  LocalDateTime NOW = auctionService.getIndianTime().now();
 	
 	// http://localhost:8080/auction/auctions
 	// find all auctions

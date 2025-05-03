@@ -1,6 +1,10 @@
 package com.example.demo.entity;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.service.AuctionService;
 import com.example.demo.statusEnum.AuctionStatus;
@@ -58,8 +62,7 @@ public class Auction {
     private LocalDateTime createdAt;
     
     // Default constructor
-    
-    
+
     @ManyToOne
     @JoinColumn(name = "user_id")  // FK column in auctions table
     @JsonBackReference
@@ -68,8 +71,8 @@ public class Auction {
     @PrePersist
     @PreUpdate
     public void updateAuctionStatus() {
-    	 AuctionService a  = new AuctionService();
-        LocalDateTime now = a.getIndianTime().now();
+    	
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
         if (startDate != null && startDate.isAfter(now)) {
             this.status = AuctionStatus.UPCOMING;
         } else if (endDate != null && endDate.isBefore(now)) {

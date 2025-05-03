@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,9 @@ public class BidService {
 	@Autowired
 	private BidRepository bidRepository;
 	
-	@Autowired
-	private AuctionService auctionService;
+
 	
-	private   LocalDateTime NOW = auctionService.getIndianTime().now();
+	private   LocalDateTime NOW = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
 	public Bid saveBid(Bid bid) {
 		// Save the bid to the database
 		Bid savedBid = bidRepository.save(bid);

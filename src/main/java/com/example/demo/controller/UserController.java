@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.Repository.userRepository;
 import com.example.demo.entity.Auction;
 import com.example.demo.entity.Users;
+import com.example.demo.service.AuctionService;
 
 @RestController		
 @RequestMapping("/user")
@@ -24,7 +25,7 @@ public class UserController {
 	private userRepository usersRepository;
 	
 	@Autowired
-	private com.example.demo.service.AuctionService auctionService;
+	private AuctionService auctionService;
 	
 	// find all auctions partisipated by a user
 	@GetMapping("/auctions/{userId}")

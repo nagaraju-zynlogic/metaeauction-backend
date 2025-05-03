@@ -25,10 +25,8 @@ public class AuctionService {
 	
 	@Autowired
 	private BidService bidService;
-	@Autowired
-	private AuctionService auctionService;
-	
-	private   LocalDateTime NOW = auctionService.getIndianTime().now();
+
+	private LocalDateTime NOW =LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
 
 	public List<Auction> getAllAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
@@ -122,11 +120,6 @@ public class AuctionService {
 		    return null;
 		
 	}
-	
-	public LocalDateTime getIndianTime() {
-	    return ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
-	}
-	
 	
 	
 

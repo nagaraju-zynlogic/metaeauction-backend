@@ -2,6 +2,8 @@ package com.example.demo.dto;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import com.example.demo.service.AuctionService;
 import com.example.demo.statusEnum.AuctionStatus;
@@ -45,8 +47,8 @@ public class AuctionReqFrom {
 	    @PrePersist
 	    @PreUpdate
 	    public void updateAuctionStatus() {
-	    	 AuctionService a  = new AuctionService();
-	        LocalDateTime now = a.getIndianTime().now();
+	    	 
+	        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
 	        if (startDate != null && startDate.isAfter(now)) {
 	            this.status = AuctionStatus.UPCOMING;
 	        } else if (endDate != null && endDate.isBefore(now)) {
