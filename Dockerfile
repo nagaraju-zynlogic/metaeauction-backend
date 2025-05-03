@@ -19,6 +19,8 @@ COPY --from=builder /app/target/auction12-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose port (Spring Boot default)
 EXPOSE 8080
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Run the JAR
 ENTRYPOINT ["java", "-jar", "app.jar"]
