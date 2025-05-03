@@ -3,6 +3,7 @@ package com.example.demo;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,8 +28,8 @@ public class Auction12Application {
     }
 	
 	public static void main(String[] args) {
-		   
-		   
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata")); // ⏰ set JVM default time zone
+	    printCurrentTimeInIST();
 		SpringApplication.run(Auction12Application.class, args);
 	}
 	
