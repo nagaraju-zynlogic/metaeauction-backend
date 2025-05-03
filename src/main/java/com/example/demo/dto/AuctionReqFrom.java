@@ -3,6 +3,7 @@ package com.example.demo.dto;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
+import com.example.demo.service.AuctionService;
 import com.example.demo.statusEnum.AuctionStatus;
 
 import jakarta.persistence.Column;
@@ -28,8 +29,8 @@ public class AuctionReqFrom {
 	    private String description;
 
 	    // Use OffsetDateTime for ISO 8601 timestamps like "2025-04-25T08:33:09.614Z"
-	    private OffsetDateTime startDate;
-	    private OffsetDateTime endDate;
+	    private LocalDateTime startDate;
+	    private LocalDateTime endDate;
 
 	    private double startingPrice;
 
@@ -38,13 +39,14 @@ public class AuctionReqFrom {
 
 	    private Integer createdByAdminId = 1;
 
-	    private LocalDateTime createdAt = LocalDateTime.now();
+	    private LocalDateTime createdAt ;
 
 	    // Automatically set status before saving or updating
 	    @PrePersist
 	    @PreUpdate
 	    public void updateAuctionStatus() {
-	        OffsetDateTime now = OffsetDateTime.now();
+	    	 AuctionService a  = new AuctionService();
+	        LocalDateTime now = a.getIndianTime().now();
 	        if (startDate != null && startDate.isAfter(now)) {
 	            this.status = AuctionStatus.UPCOMING;
 	        } else if (endDate != null && endDate.isBefore(now)) {
@@ -53,6 +55,8 @@ public class AuctionReqFrom {
 	            this.status = AuctionStatus.ACTIVE;
 	        }
 	    }
+	    
+	    
     
     
    

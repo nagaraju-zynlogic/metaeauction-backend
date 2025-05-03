@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import com.example.demo.statusEnum.AuctionStatus;
 
 @Service
 public class AuctionService {
+	
 	@Autowired
 	private AuctionRepository auctionRepository;
 	@Autowired
@@ -22,6 +25,10 @@ public class AuctionService {
 	
 	@Autowired
 	private BidService bidService;
+	@Autowired
+	private AuctionService auctionService;
+	
+	private   LocalDateTime NOW = auctionService.getIndianTime().now();
 
 	public List<Auction> getAllAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
@@ -31,7 +38,7 @@ public class AuctionService {
 	public List<Auction> getUpcomingAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
 		List<Auction> upcomingAuctions = auctions.stream()
-				.filter(auction -> auction.getStartDate().isAfter(java.time.LocalDateTime.now()))
+				.filter(auction -> auction.getStartDate().isAfter(NOW))
 				.toList();
 		
 		return upcomingAuctions;
@@ -87,27 +94,21 @@ public class AuctionService {
 		for (Auction auction : auctions) {
 			if (auction.getStatus() != AuctionStatus.CANCELED && auction.getStatus() != AuctionStatus.COMPLETED) {
 				
-				if (auction.getStartDate().isBefore(java.time.LocalDateTime.now())
-						&& auction.getEndDate().isAfter(java.time.LocalDateTime.now()) && auction.getStatus() != AuctionStatus.ACTIVE) {
+				if (auction.getStartDate().isBefore(NOW)
+						&& auction.getEndDate().isAfter(NOW) && auction.getStatus() != AuctionStatus.ACTIVE) {
 					auction.setStatus(AuctionStatus.ACTIVE);
 					auctionRepository.save(auction);
-				} else if (auction.getEndDate().isBefore(java.time.LocalDateTime.now()) && auction.getStatus() != AuctionStatus.COMPLETED)  {
+				} else if (auction.getEndDate().isBefore(NOW) && auction.getStatus() != AuctionStatus.COMPLETED)  {
 					auction.setStatus(AuctionStatus.COMPLETED);
 					auctionRepository.save(auction);
-				} else if (auction.getStartDate().isAfter(java.time.LocalDateTime.now()) && auction.getStatus() != AuctionStatus.UPCOMING) {
+				} else if (auction.getStartDate().isAfter(NOW) && auction.getStatus() != AuctionStatus.UPCOMING) {
 					auction.setStatus(AuctionStatus.UPCOMING);
 					auctionRepository.save(auction);
 				}
 				
-				
-				
 			}
-			
-		}
-			
 		
-		
-		
+		}	
 	}
 	// update auction end time  plus mins
 	public Auction updateAuctionEndTime(Integer auctionId, int minutesToAdd) {
@@ -120,6 +121,10 @@ public class AuctionService {
 		    }
 		    return null;
 		
+	}
+	
+	public LocalDateTime getIndianTime() {
+	    return ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	}
 	
 	

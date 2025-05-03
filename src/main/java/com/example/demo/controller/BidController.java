@@ -26,12 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 public class BidController {
 
 	
+		
 		@Autowired
 	    private  userRepository usersRepository;
 		@Autowired
 	    private  AuctionService auctionService;
 	    @Autowired
 	    private  BidService bidService;
+	    
+	    private  LocalDateTime NOW = auctionService.getIndianTime().now();
 	    
 	    @PostMapping("/bid/{userId}/{auctionId}/{bidAmount}")
 	    public ResponseEntity<?> placeBid(@PathVariable("userId") int userId,
@@ -59,13 +62,13 @@ public class BidController {
 	        
 	        
 	        // Check if the auction is active
-	        if (auction.getStartDate().isAfter(LocalDateTime.now()) || auction.getEndDate().isBefore(LocalDateTime.now())) {
+	        if (auction.getStartDate().isAfter(NOW) || auction.getEndDate().isBefore(NOW)) {
 	        		log.error("Auction is not active");
 	        			            return ResponseEntity.badRequest().body(null);
 	        }
 
 	        // check if auction end time is less than 3 mins and incrse 3 mins
-			if (java.time.Duration.between(LocalDateTime.now(), auction.getEndDate()).toMinutes() < 3) {
+			if (java.time.Duration.between(NOW, auction.getEndDate()).toMinutes() < 3) {
 				//	auction.setEndDate(auction.getEndDate().plusMinutes(3));
 					auctionService.updateAuctionEndTime(auction.getId(), 3);
 			}
@@ -79,7 +82,7 @@ public class BidController {
 	        bid.setUser(user);
 	        bid.setAuction(auction);
 	        bid.setBidAmount(bidAmount);
-	        bid.setBidTime(LocalDateTime.now());
+	        bid.setBidTime(NOW);
 
 	        // Save the bid
 	        Bid savedBid = bidService.saveBid(bid);
@@ -139,7 +142,7 @@ public class BidController {
 	        }
 	        // chcke it is upcomming auction or not
 	        
-	        if(!auction.getStartDate().isAfter(LocalDateTime.now())) {
+	        if(!auction.getStartDate().isAfter(NOW)) {
 	        	log.info("auction not upcomming");
 	        	return ResponseEntity.badRequest().body("auction not upcomming");
 	        	
@@ -153,7 +156,7 @@ public class BidController {
 	        bid.setAuction(auction);
 	        bid.setBidAmount(bidAmount);
 	        bid.setBidStatus("SCEHDULED");
-	        bid.setBidTime(LocalDateTime.now());
+	        bid.setBidTime(NOW);
 
 	        // Save the bid
 	        Bid savedBid = bidService.saveBid(bid);

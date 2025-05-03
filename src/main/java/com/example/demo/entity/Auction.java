@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import java.time.LocalDateTime;
 
+import com.example.demo.service.AuctionService;
 import com.example.demo.statusEnum.AuctionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -67,7 +68,8 @@ public class Auction {
     @PrePersist
     @PreUpdate
     public void updateAuctionStatus() {
-        LocalDateTime now = LocalDateTime.now();
+    	 AuctionService a  = new AuctionService();
+        LocalDateTime now = a.getIndianTime().now();
         if (startDate != null && startDate.isAfter(now)) {
             this.status = AuctionStatus.UPCOMING;
         } else if (endDate != null && endDate.isBefore(now)) {

@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import java.util.TimeZone;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -13,7 +15,11 @@ public class Auction12Application {
 
 	
 	public static void main(String[] args) {
+		   TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+		   
 		SpringApplication.run(Auction12Application.class, args);
 	}
-
+	
+	
+	
 }

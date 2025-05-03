@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,11 @@ import com.example.demo.service.AuctionService;
 @RestController
 @RequestMapping("/auction")
 public class AuctionController {
+
 	@Autowired
 	private AuctionService auctionService;
+	private  LocalDateTime NOW = auctionService.getIndianTime().now();
+	
 	// http://localhost:8080/auction/auctions
 	// find all auctions
 	@GetMapping("/auctions")
@@ -42,12 +46,16 @@ public class AuctionController {
 	@GetMapping("/runningAuctions")
 	public List<Auction> getRunningAuctions() {
 		updateAuctionStatus();
+		
 		return auctionService.getAllAuctions().stream()
-				.filter(auction -> auction.getStartDate().isBefore(java.time.LocalDateTime.now())
-						&& auction.getEndDate().isAfter(java.time.LocalDateTime.now()))
+				.filter(auction -> auction.getStartDate().isBefore(NOW)
+						&& auction.getEndDate().isAfter(NOW))
 				.toList();
 		
 	}
+	
+	
+	
 	// find auctions ended
 	@GetMapping("/endedAuctions")
 	public List<Auction> getEndedAuctions() {
@@ -55,7 +63,7 @@ public class AuctionController {
 		// filter auctions that have ended with time
 		
 		return auctionService.getAllAuctions().stream()
-				.filter(auction -> auction.getEndDate().isBefore(java.time.LocalDateTime.now()))
+				.filter(auction -> auction.getEndDate().isBefore(NOW))
 				.toList();
 		
 	}
@@ -65,6 +73,7 @@ public class AuctionController {
 	public void updateAuctionStatus() {
 		 auctionService.updateAuctionStatus();
 	}
+	
 	
 
 

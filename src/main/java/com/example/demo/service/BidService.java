@@ -16,10 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class BidService {
+	
 	@Autowired
 	private BidRepository bidRepository;
 	
-
+	@Autowired
+	private AuctionService auctionService;
+	
+	private   LocalDateTime NOW = auctionService.getIndianTime().now();
 	public Bid saveBid(Bid bid) {
 		// Save the bid to the database
 		Bid savedBid = bidRepository.save(bid);
@@ -61,7 +65,7 @@ public class BidService {
 	        Auction auction = bid.getAuction();
 
 	        // Check if the auction has started
-	        if (auction.getStartDate().isBefore(LocalDateTime.now()) && bid.getBidStatus().equals("SCEHDULED") ) {
+	        if (auction.getStartDate().isBefore(NOW) && bid.getBidStatus().equals("SCEHDULED") ) {
 	        	bid.setBidStatus("PLACED");
 	        	bid.setBidTime(auction.getStartDate());
 	        }
