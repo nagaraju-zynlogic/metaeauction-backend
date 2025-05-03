@@ -67,6 +67,7 @@ public class AdminController {
 	public ResponseEntity<?> insertAuction(@RequestBody Auction auction) {
 		// Validate the auction details
 		// || auction.getStartDate().isBefore(java.time.LocalDateTime.now().minusMinutes(10))
+		log.info("input from the form data" + auction);
 		if (auction.getStartDate() == null || auction.getEndDate() == null || auction.getStartDate().isAfter(auction.getEndDate())) {
 			log.info("Invalid auction details");
 			return ResponseEntity.badRequest().body("Invalid Action details" );

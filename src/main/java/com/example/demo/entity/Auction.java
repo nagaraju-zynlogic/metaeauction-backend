@@ -70,6 +70,7 @@ public class Auction {
     public void updateAuctionStatus() {
     	
         LocalDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
+        createdAt = now;
         if (startDate != null && startDate.isAfter(now)) {
             this.status = AuctionStatus.UPCOMING;
         } else if (endDate != null && endDate.isBefore(now)) {
