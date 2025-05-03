@@ -15,7 +15,7 @@ public class Auction12Application {
 
 	
 	public static void main(String[] args) {
-		   TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+		   
 		   
 		SpringApplication.run(Auction12Application.class, args);
 	}

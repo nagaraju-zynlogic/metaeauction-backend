@@ -21,7 +21,7 @@ import lombok.Data;
 @Data
 public class AuctionReqFrom {
 	
-	 @Id
+	    @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    private Integer id;
 
@@ -48,7 +48,7 @@ public class AuctionReqFrom {
 	    @PreUpdate
 	    public void updateAuctionStatus() {
 	    	 
-	        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+	    	LocalDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	        if (startDate != null && startDate.isAfter(now)) {
 	            this.status = AuctionStatus.UPCOMING;
 	        } else if (endDate != null && endDate.isBefore(now)) {

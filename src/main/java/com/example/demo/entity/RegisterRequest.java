@@ -37,9 +37,7 @@ public class RegisterRequest {
 
 
 
-    public void setAccounttype(String accounttype) {
-        accounttype = accounttype;
-    }
+    
 
     public String getPassword() {
         return password;

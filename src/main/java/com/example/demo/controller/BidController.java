@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class BidController {
 	    @Autowired
 	    private  BidService bidService;
 	    
-	    private  LocalDateTime NOW = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+	    private  LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	    
 	    @PostMapping("/bid/{userId}/{auctionId}/{bidAmount}")
 	    public ResponseEntity<?> placeBid(@PathVariable("userId") int userId,

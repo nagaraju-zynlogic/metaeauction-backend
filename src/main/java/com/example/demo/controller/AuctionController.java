@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import com.example.demo.service.AuctionService;
 @RestController
 @RequestMapping("/auction")
 public class AuctionController {
-	private  LocalDateTime NOW = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+	private  LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	@Autowired
 	private AuctionService auctionService;
 	

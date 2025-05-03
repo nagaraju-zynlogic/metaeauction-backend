@@ -4,9 +4,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.example.demo.service.AuctionService;
 import com.example.demo.statusEnum.AuctionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -72,7 +69,7 @@ public class Auction {
     @PreUpdate
     public void updateAuctionStatus() {
     	
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+        LocalDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
         if (startDate != null && startDate.isAfter(now)) {
             this.status = AuctionStatus.UPCOMING;
         } else if (endDate != null && endDate.isBefore(now)) {

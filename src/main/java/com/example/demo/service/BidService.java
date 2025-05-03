@@ -24,7 +24,7 @@ public class BidService {
 	
 
 	
-	private   LocalDateTime NOW = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+	private   LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();	
 	public Bid saveBid(Bid bid) {
 		// Save the bid to the database
 		Bid savedBid = bidRepository.save(bid);
