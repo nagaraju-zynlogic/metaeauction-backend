@@ -17,7 +17,7 @@ import com.example.demo.service.AuctionService;
 @RestController
 @RequestMapping("/auction")
 public class AuctionController {
-	private  LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
+	LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	@Autowired
 	private AuctionService auctionService;
 	
@@ -46,7 +46,9 @@ public class AuctionController {
 	// find auctions currently running
 	@GetMapping("/runningAuctions")
 	public List<Auction> getRunningAuctions() {
+		LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 		updateAuctionStatus();
+		
 		
 		return auctionService.getAllAuctions().stream()
 				.filter(auction -> auction.getStartDate().isBefore(NOW)
@@ -60,6 +62,7 @@ public class AuctionController {
 	// find auctions ended
 	@GetMapping("/endedAuctions")
 	public List<Auction> getEndedAuctions() {
+		LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 		updateAuctionStatus();
 		// filter auctions that have ended with time
 		

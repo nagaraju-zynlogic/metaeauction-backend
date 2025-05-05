@@ -24,7 +24,7 @@ public class BidService {
 	
 
 	
-	private   LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();	
+LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();	
 	public Bid saveBid(Bid bid) {
 		// Save the bid to the database
 		Bid savedBid = bidRepository.save(bid);
@@ -59,7 +59,7 @@ public class BidService {
 	
 	// based on auction start time update action details for auto bid
 	public void updateBidStatusAndTime() {
-
+		LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 		List<Bid> allBids = bidRepository.findAll();
 
 	    for (Bid bid : allBids) {

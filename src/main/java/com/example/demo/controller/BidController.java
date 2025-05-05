@@ -36,12 +36,13 @@ public class BidController {
 	    @Autowired
 	    private  BidService bidService;
 	    
-	    private  LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
+	LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	    
 	    @PostMapping("/bid/{userId}/{auctionId}/{bidAmount}")
 	    public ResponseEntity<?> placeBid(@PathVariable("userId") int userId,
 	                                           @PathVariable("auctionId") int auctionId,
 	                                           @PathVariable("bidAmount") double bidAmount) {
+	    	LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	        // Fetch the user and auction details
 	    	log.info("userId: " + userId);
 	    	log.info("auctionId: " + auctionId);
@@ -68,11 +69,14 @@ public class BidController {
 	        		log.error("Auction is not active");
 	        			            return ResponseEntity.badRequest().body(null);
 	        }
-
+	        log.info(" auction  details  :  " + auction);
+	        log.info(" currunt time  :" + NOW  );
 	        // check if auction end time is less than 3 mins and incrse 3 mins
 			if (java.time.Duration.between(NOW, auction.getEndDate()).toMinutes() < 3) {
 				//	auction.setEndDate(auction.getEndDate().plusMinutes(3));
+				log.info("updating end time ");
 					auctionService.updateAuctionEndTime(auction.getId(), 3);
+					
 			}
 	        
 	        // Create a new bid
@@ -98,6 +102,8 @@ public class BidController {
 	    @GetMapping("/getBids/{userId}/{auctionId}")
 	    public ResponseEntity<List<Bid>> getBidsByUserAndAuction(@PathVariable("userId") int userId,
 	                                                             @PathVariable("auctionId") int auctionId) {
+	    	
+	    	LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	        Users user = usersRepository.findById(userId).orElse(null);
 	        Auction auction = auctionService.getAuctionById(auctionId);
 
@@ -111,6 +117,7 @@ public class BidController {
 	    // get all bids by auction id
 	    @GetMapping("/getAllBids/{auctionId}")
 	    public ResponseEntity<List<Bid>> getBidsByAuction(@PathVariable("auctionId") int auctionId) {
+	    	LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	        Auction auction = auctionService.getAuctionById(auctionId);
 
 	        if (auction == null) {
@@ -125,6 +132,7 @@ public class BidController {
 	    public ResponseEntity<?> placeSheduleBid(@PathVariable("userId") int userId,
 	                                           @PathVariable("auctionId") int auctionId,
 	                                           @PathVariable("bidAmount") double bidAmount) {
+	    	LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	        // Fetch the user and auction details
 	    	log.info("userId: " + userId);
 	    	log.info("auctionId: " + auctionId);

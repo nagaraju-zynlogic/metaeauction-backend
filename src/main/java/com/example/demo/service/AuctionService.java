@@ -15,7 +15,10 @@ import com.example.demo.entity.Bid;
 import com.example.demo.entity.Users;
 import com.example.demo.statusEnum.AuctionStatus;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AuctionService {
 	
 	@Autowired
@@ -109,13 +112,18 @@ public class AuctionService {
 	}
 	// update auction end time  plus mins
 	public Auction updateAuctionEndTime(Integer auctionId, int minutesToAdd) {
+		log.info("actuion  " + auctionId +  " " + minutesToAdd);
 		    if (auctionId != null) {
 		        Auction auction = auctionRepository.findById(auctionId).orElse(null);
+		        
 		        if (auction != null) {
+		        	
 		            auction.setEndDate(auction.getEndDate().plusMinutes(minutesToAdd));
+		            log.info( " "  + auction);
 		            return auctionRepository.save(auction);
 		        }
 		    }
+		   log.info("auction not updated");
 		    return null;
 		
 	}
