@@ -152,53 +152,7 @@ public class UserController {
 		return ResponseEntity.ok("User deleted successfully");
 	}
 
-	@PostMapping("/auto-bid/setup")
-	@Transactional
-	public ResponseEntity<?> setupAutoBid(@RequestBody AutomaticBidReq abr) {
-	    log.info("AutoBid Request: {}", abr);
-
-	    Users user = usersRepository.findById(abr.getUserId()).orElse(null);
-	    Auction auction = auctionService.getAuctionById(abr.getAuctionId());
-
-	    if (user == null || auction == null) {
-	        return ResponseEntity.badRequest().body("User or Auction not found");
-	    }
-
-	    if (abr.getMaxAmt() <= 0 || abr.getRiseAmt() <= 0) {
-	        return ResponseEntity.badRequest().body("Max amount and rise amount must be positive");
-	    }
-
-			/* Optional<AutoBidConfig> existing = autoBidRepo.findByUserAndAuction(user, auction);
-			if (existing.isPresent()) {
-			    return ResponseEntity.badRequest().body("Auto-bid already set for this auction");
-			}*/
-
-	    // Save the AutoBidConfig
-	    AutoBidConfig config = new AutoBidConfig();
-	    config.setUser(user);
-	    config.setAuction(auction);
-	    config.setMaxAmount(abr.getMaxAmt());
-	    config.setRiseAmount(abr.getRiseAmt());
-	    autoBidRepo.save(config);
-	    double currentPrice =  bidService.findHighestBidForAuction(auction.getId()) .orElse(auction.getStartingPrice());
-
-	    // Place first AUTO bid with base price
-	    Bid baseBid = new Bid();
-	    baseBid.setUser(user);
-	    baseBid.setAuction(auction);
-	    baseBid.setBidAmount(currentPrice + abr.getRiseAmt());
-	    baseBid.setBidTime(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime());
-	    baseBid.setBidStatus("AUTO");
-
-	    bidService.saveBid(baseBid);
-	    log.info("Base AUTO bid placed by user {} for auction {} with amount {}", user.getId(), auction.getId(), auction.getStartingPrice());
-
-	    // Simulate remaining auto-bids (2 more max per user)
-	    autoBidService.processAutoBids(auction, user, auction.getStartingPrice());
-
-	    return ResponseEntity.ok("Auto-bid configured and initial bids placed");
-	}
-
+	
 
 
 

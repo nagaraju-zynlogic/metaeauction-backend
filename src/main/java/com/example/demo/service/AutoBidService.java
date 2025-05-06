@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -41,8 +40,6 @@ public class AutoBidService {
      * @param latestTopBidder  The user who placed the latest highest bid (can be null during setup)
      * @param currentBid       The current highest bid amount (start from base price during setup)
      */
-	
-    
     public void processAutoBids(Auction auction, Users latestTopBidder, double currentBid) {
         List<AutoBidConfig> configs = autoBidRepo.findByAuction(auction);
 
@@ -50,91 +47,75 @@ public class AutoBidService {
             log.info("Not enough auto-bid configs to simulate competition.");
             return;
         }
-
-        // Sort by maxAmount descending to determine who starts the cold war
-        configs.sort((a, b) -> Double.compare(b.getMaxAmount(), a.getMaxAmount()));
-
-        // Start with highest bid already placed in auction
-        Optional<Bid> topBidOpt = bidRepository.findTopByAuctionOrderByBidAmountDesc(auction);
-        double currentPrice = topBidOpt.map(Bid::getBidAmount).orElse(currentBid);
-        Users currentTopBidder = topBidOpt.map(Bid::getUser).orElse(null);
+        
+      
+        
+        double currentPrice = currentBid;
+        Users currentTopBidder = latestTopBidder;
 
         Map<Users, Double> maxMap = new HashMap<>();
         Map<Users, Double> riseMap = new HashMap<>();
-        List<Bid> transactionHistory = new ArrayList<>();
-        Set<Users> exhaustedUsers = new HashSet<>();
+        Map<Users, Double> lastBidMap = new HashMap<>();
 
-        // Initialize maps
         for (AutoBidConfig config : configs) {
             maxMap.put(config.getUser(), config.getMaxAmount());
             riseMap.put(config.getUser(), config.getRiseAmount());
+            lastBidMap.put(config.getUser(), currentPrice);
         }
-
-        // Starter tries to place first AUTO bid
-        AutoBidConfig starter = configs.get(0);
-        Users starterUser = starter.getUser();
-        double starterMax = starter.getMaxAmount();
-        double starterRise = starter.getRiseAmount();
-        double starterBid = currentPrice + starterRise;
-
-        if (starterBid <= starterMax) {
-            Bid bid = new Bid(starterUser, auction, starterBid, LocalDateTime.now(), "AUTO");
-            transactionHistory.add(bid);
-            currentPrice = starterBid;
-            currentTopBidder = starterUser;
-        } else if (currentPrice < starterMax) {
-            // Place the max possible bid
-            Bid bid = new Bid(starterUser, auction, starterMax, LocalDateTime.now(), "AUTO");
-            transactionHistory.add(bid);
-            currentPrice = starterMax;
-            currentTopBidder = starterUser;
-        } else {
-            exhaustedUsers.add(starterUser);
-        }
-
+       
+        List<Bid> transactionHistory = new ArrayList<>();
+        Set<Users> exhaustedUsers = new HashSet<>();
         boolean bidPlaced;
+
         do {
             bidPlaced = false;
 
             for (AutoBidConfig config : configs) {
                 Users user = config.getUser();
                 if (user.equals(currentTopBidder) || exhaustedUsers.contains(user)) continue;
-
+                
                 double rise = riseMap.get(user);
                 double max = maxMap.get(user);
                 double nextBid = currentPrice + rise;
 
                 if (nextBid <= max) {
                     currentPrice = nextBid;
-                } else if (currentPrice < max) {
-                    currentPrice = max;
+                    currentTopBidder = user;
+                    lastBidMap.put(user, currentPrice);
+
+                    // Record this bid as a transaction
+                    Bid bid = new Bid();
+                    bid.setUser(user);
+                    bid.setAuction(auction);
+                    bid.setBidAmount(currentPrice);
+                    bid.setBidTime(LocalDateTime.now());
+                    bid.setBidStatus("AUTO");
+
+                    transactionHistory.add(bid);
+                    bidPlaced = true;
+                    
+                    // Maintain only last 3 transactions
+                    if (transactionHistory.size() >  configs.size()*3) {
+                        transactionHistory.remove(0);
+                    }
                 } else {
                     exhaustedUsers.add(user);
-                    continue;
-                }
-
-                currentTopBidder = user;
-
-                Bid bid = new Bid(user, auction, currentPrice, LocalDateTime.now(), "AUTO");
-                transactionHistory.add(bid);
-                bidPlaced = true;
-
-                if (transactionHistory.size() > configs.size() * 3) {
-                    transactionHistory.remove(0);
                 }
             }
 
         } while (bidPlaced);
 
+        // Save only last 3 bids of cold war
         if (!transactionHistory.isEmpty()) {
             bidRepository.saveAll(transactionHistory);
-            log.info("Cold war bidding complete. Final {} bids saved.", transactionHistory.size());
+            log.info("Cold war bidding complete. Final 3 bids saved.");
         } else {
             log.info("No auto-bids were placed in cold war.");
         }
     }
 
-
+    
+   
 
     public void simulateFinalAutoBids(Auction auction) {
         List<AutoBidConfig> configs = autoBidRepo.findByAuction(auction);
