@@ -29,13 +29,14 @@ public class AuctionService {
 	@Autowired
 	private BidService bidService;
 
-	private LocalDateTime NOW =ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
+	LocalDateTime NOW =ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	public List<Auction> getAllAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
 		return auctions;
 	}
 
 	public List<Auction> getUpcomingAuctions() {
+		LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 		List<Auction> auctions = auctionRepository.findAll();
 		List<Auction> upcomingAuctions = auctions.stream()
 				.filter(auction -> auction.getStartDate().isAfter(NOW))
@@ -88,6 +89,7 @@ public class AuctionService {
 	}
 	// based on start and end date time update auction status
 	public void  updateAuctionStatus() {
+		LocalDateTime NOW = ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 		List<Auction> auctions = auctionRepository.findAll();
 		bidService.updateBidStatusAndTime();
 		// dont update auction status if statuc is CANCELED AND COMPLETED

@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,19 +15,39 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.Repository.AutoBidConfigRepository;
 import com.example.demo.Repository.userRepository;
+import com.example.demo.dto.AutomaticBidReq;
 import com.example.demo.entity.Auction;
+import com.example.demo.entity.AutoBidConfig;
+import com.example.demo.entity.Bid;
 import com.example.demo.entity.Users;
 import com.example.demo.service.AuctionService;
+import com.example.demo.service.AutoBidService;
+import com.example.demo.service.BidService;
+
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController		
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 	@Autowired
 	private userRepository usersRepository;
 	
 	@Autowired
 	private AuctionService auctionService;
+	
+	@Autowired
+	private BidService bidService;
+	
+	@Autowired
+	private AutoBidService autoBidService;
+
+	
+	@Autowired
+	private AutoBidConfigRepository autoBidRepo;
 	
 	// find all auctions partisipated by a user
 	@GetMapping("/auctions/{userId}")
@@ -130,4 +152,59 @@ public class UserController {
 		return ResponseEntity.ok("User deleted successfully");
 	}
 
+	@PostMapping("/auto-bid/setup")
+	@Transactional
+	public ResponseEntity<?> setupAutoBid(@RequestBody AutomaticBidReq abr) {
+	    log.info("AutoBid Request: {}", abr);
+
+	    Users user = usersRepository.findById(abr.getUserId()).orElse(null);
+	    Auction auction = auctionService.getAuctionById(abr.getAuctionId());
+
+	    if (user == null || auction == null) {
+	        return ResponseEntity.badRequest().body("User or Auction not found");
+	    }
+
+	    if (abr.getMaxAmt() <= 0 || abr.getRiseAmt() <= 0) {
+	        return ResponseEntity.badRequest().body("Max amount and rise amount must be positive");
+	    }
+
+			/* Optional<AutoBidConfig> existing = autoBidRepo.findByUserAndAuction(user, auction);
+			if (existing.isPresent()) {
+			    return ResponseEntity.badRequest().body("Auto-bid already set for this auction");
+			}*/
+
+	    // Save the AutoBidConfig
+	    AutoBidConfig config = new AutoBidConfig();
+	    config.setUser(user);
+	    config.setAuction(auction);
+	    config.setMaxAmount(abr.getMaxAmt());
+	    config.setRiseAmount(abr.getRiseAmt());
+	    autoBidRepo.save(config);
+	    double currentPrice =  bidService.findHighestBidForAuction(auction.getId()) .orElse(auction.getStartingPrice());
+
+	    // Place first AUTO bid with base price
+	    Bid baseBid = new Bid();
+	    baseBid.setUser(user);
+	    baseBid.setAuction(auction);
+	    baseBid.setBidAmount(currentPrice + abr.getRiseAmt());
+	    baseBid.setBidTime(ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime());
+	    baseBid.setBidStatus("AUTO");
+
+	    bidService.saveBid(baseBid);
+	    log.info("Base AUTO bid placed by user {} for auction {} with amount {}", user.getId(), auction.getId(), auction.getStartingPrice());
+
+	    // Simulate remaining auto-bids (2 more max per user)
+	    autoBidService.processAutoBids(auction, user, auction.getStartingPrice());
+
+	    return ResponseEntity.ok("Auto-bid configured and initial bids placed");
+	}
+
+
+
+
+
+
+
+	
+	
 }
