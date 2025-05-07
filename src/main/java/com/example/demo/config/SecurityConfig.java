@@ -25,6 +25,7 @@ public class SecurityConfig {
           
           // configure URL authorization
           .authorizeHttpRequests(auth -> auth
+         .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers(
            
               "/login",
@@ -33,7 +34,6 @@ public class SecurityConfig {
               "/api/auth/register",
               "/api/auth/login",
              
-              "/admin/**",
               "/auction/**",
              
              

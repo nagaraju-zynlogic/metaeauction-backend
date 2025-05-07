@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Repository.AutoBidConfigRepository;
@@ -220,9 +221,13 @@ public class BidController {
 		}
 	    
 	    //update auto bid 
-	    @PutMapping("/update/auto-bid/")
-	    public ResponseEntity<AutoBidConfig> updateAutoBidding(@RequestBody AutoBidConfig abc){
-	    	 return new  ResponseEntity<AutoBidConfig>(autoBidConfigRepository.save(abc) , HttpStatus.OK);
+	    @PutMapping("/update/auto-bid")
+	    public ResponseEntity<AutoBidConfig> updateAutoBidding(@RequestParam Integer id , @RequestParam Double MaxAmt,@RequestParam Double riseAmt ){
+	    
+	    	AutoBidConfig abc =  	autoBidConfigRepository.findById(id).get();
+	    	abc.setMaxAmount(MaxAmt);
+	    	abc.setRiseAmount(riseAmt);
+	    	return new  ResponseEntity<AutoBidConfig>(autoBidConfigRepository.save(abc) , HttpStatus.OK);
 	    	
 	    }
 }
