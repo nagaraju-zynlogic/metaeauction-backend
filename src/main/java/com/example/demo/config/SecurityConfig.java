@@ -31,7 +31,8 @@ public class SecurityConfig {
         	              "/auction/**",
         	              "/api/**",
         	              "/api/auth/register",
-        	              "/api/auth/login"           
+        	              "/api/auth/login" ,
+        	              "/admin/login"
         	              
         	        ).permitAll()
          .requestMatchers("/admin/**", "/user/**").hasRole("ADMIN")
