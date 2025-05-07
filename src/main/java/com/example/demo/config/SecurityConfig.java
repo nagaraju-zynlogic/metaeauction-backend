@@ -25,22 +25,19 @@ public class SecurityConfig {
           
           // configure URL authorization
           .authorizeHttpRequests(auth -> auth
+        		  .requestMatchers(           
+        	              "/login",
+        	              "/register",
+        	              "/auction/**",
+        	              "/api/**",
+        	              "/api/auth/register",
+        	              "/api/auth/login"           
+        	              
+        	            ).permitAll()
          .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers(
+         .requestMatchers( "/user/**").hasRole("USER")
+         .requestMatchers("/bids/**","/documents/**").authenticated()
            
-              "/login",
-              "/register",
-              "/api/**",
-              "/api/auth/register",
-              "/api/auth/login",
-             
-              "/auction/**",
-             
-             
-              "/user/**",
-              "/bids/**",
-              "/documents/**"
-            ).permitAll()
             .anyRequest().authenticated()
           )
           
