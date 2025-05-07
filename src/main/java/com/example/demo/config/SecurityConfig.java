@@ -32,12 +32,11 @@ public class SecurityConfig {
         	              "/api/**",
         	              "/api/auth/register",
         	              "/api/auth/login" ,
-        	              "/admin/login"
+        	              "/admin/login",
+        	              "/admin/**", "/user/**","/bids/**","/documents/**"
         	              
         	        ).permitAll()
-         .requestMatchers("/admin/**", "/user/**").hasRole("ADMIN")
-         .requestMatchers( "/user/**").hasRole("USER")
-         .requestMatchers("/bids/**","/documents/**").authenticated()
+         
            
             .anyRequest().authenticated()
           )
