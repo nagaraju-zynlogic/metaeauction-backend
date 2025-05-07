@@ -200,7 +200,7 @@ public class BidController {
 		    config.setAuction(auction);
 		    config.setMaxAmount(abr.getMaxAmt());
 		    config.setRiseAmount(abr.getRiseAmt());
-		    autoBidConfigRepository.save(config);
+		 AutoBidConfig n=    autoBidConfigRepository.save(config);
 		    double currentPrice =  bidService.findHighestBidForAuction(auction.getId()) .orElse(auction.getStartingPrice());
 
 		    // Place first AUTO bid with base price
@@ -217,7 +217,7 @@ public class BidController {
 		    // Simulate remaining auto-bids (2 more max per user)
 		    autoBidService.processAutoBids(auction, user, auction.getStartingPrice());
 
-		    return ResponseEntity.ok("Auto-bid configured and initial bids placed");
+		    return ResponseEntity.ok(n);
 		}
 	    
 	    //update auto bid 
@@ -230,6 +230,12 @@ public class BidController {
 	    	return new  ResponseEntity<AutoBidConfig>(autoBidConfigRepository.save(abc) , HttpStatus.OK);
 	    	
 	    }
+	    @GetMapping("/autoBids")
+	    public ResponseEntity<List<AutoBidConfig>> getAllAutoBids() {
+	        List<AutoBidConfig> autoBids = autoBidConfigRepository.findAll();
+	        return new ResponseEntity<>(autoBids, HttpStatus.OK);
+	    }
+
 }
 
 

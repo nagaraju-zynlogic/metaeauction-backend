@@ -36,8 +36,6 @@ public class SecurityConfig {
         	              "/admin/**", "/user/**","/bids/**","/documents/**"
         	              
         	        ).permitAll()
-         
-           
             .anyRequest().authenticated()
           )
           
