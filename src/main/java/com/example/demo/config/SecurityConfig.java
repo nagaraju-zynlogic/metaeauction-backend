@@ -33,8 +33,8 @@ public class SecurityConfig {
         	              "/api/auth/register",
         	              "/api/auth/login"           
         	              
-        	            ).permitAll()
-         .requestMatchers("/admin/**").hasRole("ADMIN")
+        	        ).permitAll()
+         .requestMatchers("/admin/**", "/user/**").hasRole("ADMIN")
          .requestMatchers( "/user/**").hasRole("USER")
          .requestMatchers("/bids/**","/documents/**").authenticated()
            
