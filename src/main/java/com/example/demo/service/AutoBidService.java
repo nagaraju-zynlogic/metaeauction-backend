@@ -40,29 +40,101 @@ public class AutoBidService {
      * @param latestTopBidder  The user who placed the latest highest bid (can be null during setup)
      * @param currentBid       The current highest bid amount (start from base price during setup)
      */
+//    public void processAutoBids(Auction auction, Users latestTopBidder, double currentBid) {
+//        List<AutoBidConfig> configs = autoBidRepo.findByAuction(auction);
+//
+//        if (configs == null || configs.size() < 2) {
+//            log.info("Not enough auto-bid configs to simulate competition.");
+//            return;
+//        }
+//        
+//      
+//        
+//        double currentPrice = currentBid;
+//        Users currentTopBidder = latestTopBidder;
+//
+//        Map<Users, Double> maxMap = new HashMap<>();
+//        Map<Users, Double> riseMap = new HashMap<>();
+//        Map<Users, Double> lastBidMap = new HashMap<>();
+//
+//        for (AutoBidConfig config : configs) {
+//            maxMap.put(config.getUser(), config.getMaxAmount());
+//            riseMap.put(config.getUser(), config.getRiseAmount());
+//            lastBidMap.put(config.getUser(), currentPrice);
+//        }
+//       
+//        List<Bid> transactionHistory = new ArrayList<>();
+//        Set<Users> exhaustedUsers = new HashSet<>();
+//        boolean bidPlaced;
+//
+//        do {
+//            bidPlaced = false;
+//
+//            for (AutoBidConfig config : configs) {
+//                Users user = config.getUser();
+//                if (user.equals(currentTopBidder) || exhaustedUsers.contains(user)) continue;
+//                
+//                double rise = riseMap.get(user);
+//                double max = maxMap.get(user);
+//                double nextBid = currentPrice + rise;
+//
+//                if (nextBid <= max) {
+//                    currentPrice = nextBid;
+//                    currentTopBidder = user;
+//                    lastBidMap.put(user, currentPrice);
+//
+//                    // Record this bid as a transaction
+//                    Bid bid = new Bid();
+//                    bid.setUser(user);
+//                    bid.setAuction(auction);
+//                    bid.setBidAmount(currentPrice);
+//                    bid.setBidTime(LocalDateTime.now());
+//                    bid.setBidStatus("AUTO");
+//
+//                    transactionHistory.add(bid);
+//                    bidPlaced = true;
+//                    
+//                    // Maintain only last 3 transactions
+//                    if (transactionHistory.size() >  configs.size()*3) {
+//                        transactionHistory.remove(0);
+//                    }
+//                } else {
+//                    exhaustedUsers.add(user);
+//                }
+//            }
+//
+//        } while (bidPlaced);
+//
+//        // Save only last 3 bids of cold war
+//        if (!transactionHistory.isEmpty()) {
+//            bidRepository.saveAll(transactionHistory);
+//            log.info("Cold war bidding complete. Final 3 bids saved.");
+//        } else {
+//            log.info("No auto-bids were placed in cold war.");
+//        }
+//    }
+    
+    
+    
     public void processAutoBids(Auction auction, Users latestTopBidder, double currentBid) {
         List<AutoBidConfig> configs = autoBidRepo.findByAuction(auction);
 
-        if (configs == null || configs.size() < 2) {
-            log.info("Not enough auto-bid configs to simulate competition.");
+        if (configs == null || configs.isEmpty()) {
+            log.info("No auto-bid configs found.");
             return;
         }
-        
-      
-        
+
         double currentPrice = currentBid;
         Users currentTopBidder = latestTopBidder;
 
         Map<Users, Double> maxMap = new HashMap<>();
         Map<Users, Double> riseMap = new HashMap<>();
-        Map<Users, Double> lastBidMap = new HashMap<>();
 
         for (AutoBidConfig config : configs) {
             maxMap.put(config.getUser(), config.getMaxAmount());
             riseMap.put(config.getUser(), config.getRiseAmount());
-            lastBidMap.put(config.getUser(), currentPrice);
         }
-       
+
         List<Bid> transactionHistory = new ArrayList<>();
         Set<Users> exhaustedUsers = new HashSet<>();
         boolean bidPlaced;
@@ -72,18 +144,24 @@ public class AutoBidService {
 
             for (AutoBidConfig config : configs) {
                 Users user = config.getUser();
-                if (user.equals(currentTopBidder) || exhaustedUsers.contains(user)) continue;
-                
+                if (exhaustedUsers.contains(user)) continue;
+
                 double rise = riseMap.get(user);
                 double max = maxMap.get(user);
                 double nextBid = currentPrice + rise;
 
+                // Don't allow a user to outbid themselves UNLESS someone else is top
+                if (user.equals(currentTopBidder)) {
+                    if (nextBid > max) {
+                        exhaustedUsers.add(user);
+                    }
+                    continue;
+                }
+
                 if (nextBid <= max) {
                     currentPrice = nextBid;
                     currentTopBidder = user;
-                    lastBidMap.put(user, currentPrice);
 
-                    // Record this bid as a transaction
                     Bid bid = new Bid();
                     bid.setUser(user);
                     bid.setAuction(auction);
@@ -93,9 +171,8 @@ public class AutoBidService {
 
                     transactionHistory.add(bid);
                     bidPlaced = true;
-                    
-                    // Maintain only last 3 transactions
-                    if (transactionHistory.size() >  configs.size()*3) {
+
+                    if (transactionHistory.size() > configs.size() * 3) {
                         transactionHistory.remove(0);
                     }
                 } else {
@@ -105,14 +182,14 @@ public class AutoBidService {
 
         } while (bidPlaced);
 
-        // Save only last 3 bids of cold war
         if (!transactionHistory.isEmpty()) {
             bidRepository.saveAll(transactionHistory);
-            log.info("Cold war bidding complete. Final 3 bids saved.");
+            log.info("Cold war bidding complete. Final bids saved.");
         } else {
             log.info("No auto-bids were placed in cold war.");
         }
     }
+
 
     
    
