@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Repository.AutoBidConfigRepository;
 import com.example.demo.Repository.userRepository;
 import com.example.demo.dto.AutomaticBidReq;
+import com.example.demo.dto.UpdateAutoBidReq;
 import com.example.demo.entity.Auction;
 import com.example.demo.entity.AutoBidConfig;
 import com.example.demo.entity.Bid;
@@ -221,20 +221,40 @@ public class BidController {
 		}
 	    
 	    //update auto bid 
-	    @PutMapping("/update/auto-bid")
-	    public ResponseEntity<AutoBidConfig> updateAutoBidding(@RequestParam Integer id , @RequestParam Double MaxAmt,@RequestParam Double riseAmt ){
-	    
-	    	AutoBidConfig abc =  	autoBidConfigRepository.findById(id).get();
-	    	abc.setMaxAmount(MaxAmt);
-	    	abc.setRiseAmount(riseAmt);
-	    	return new  ResponseEntity<AutoBidConfig>(autoBidConfigRepository.save(abc) , HttpStatus.OK);
-	    	
+	    @PostMapping("/update/auto-bid")
+	    public ResponseEntity<?> updateAutoBidding(@RequestBody UpdateAutoBidReq updateAutoBid) {
+	        Integer userId = updateAutoBid.getUserId();
+	        Integer auctionId = updateAutoBid.getAuctionId();
+	        Double maxAmt = updateAutoBid.getMaxAmt();
+	        Double riseAmt = updateAutoBid.getRiseAmt();
+
+	        // Basic validation
+	        if (maxAmt == null || riseAmt == null || maxAmt <= 0 || riseAmt <= 0) {
+	            return ResponseEntity.badRequest().body("Invalid max or rise amount. Values must be > 0.");
+	        }
+
+	        Optional<AutoBidConfig> abc = autoBidConfigRepository.findByUserIdAndAuctionId(userId, auctionId);
+
+	        if (abc.isPresent()) {
+	            AutoBidConfig config = abc.get();
+	            config.setMaxAmount(maxAmt);
+	            config.setRiseAmount(riseAmt);
+
+	            AutoBidConfig updatedConfig = autoBidConfigRepository.save(config);
+	            return ResponseEntity.ok(updatedConfig);
+	        } else {
+	            return ResponseEntity
+	                    .status(HttpStatus.NOT_FOUND)
+	                    .body("Auto-bid configuration not found for userId: " + userId + " and auctionId: " + auctionId);
+	        }
 	    }
+
 	    @GetMapping("/autoBids")
 	    public ResponseEntity<List<AutoBidConfig>> getAllAutoBids() {
 	        List<AutoBidConfig> autoBids = autoBidConfigRepository.findAll();
 	        return new ResponseEntity<>(autoBids, HttpStatus.OK);
 	    }
+	    
 
 }
 

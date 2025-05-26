@@ -17,6 +17,6 @@ public class AutoBidConfig {
     @ManyToOne
     private Auction auction;
 
-    private double maxAmount;
-    private double riseAmount;
+    private Double maxAmount;
+    private Double riseAmount;
 }
