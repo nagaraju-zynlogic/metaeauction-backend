@@ -208,6 +208,18 @@ public class AdminController {
 	    }
 	}
 
+	@PutMapping("/recover/auction/{id}")
+	public ResponseEntity<String> recoverAuction(@PathVariable Integer id) {
+	    boolean recovered = auctionService.recoverAuction(id);
+
+	    if (recovered) {
+	        log.info("Auction recovered successfully (ID: {})", id);
+	        return ResponseEntity.ok("Auction recovered successfully");
+	    } else {
+	        log.warn("Auction not found or already active (ID: {})", id);
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found or already active");
+	    }
+	}
 
 	// find all bids
 	@GetMapping("/bids/{auctionId}")
@@ -403,6 +415,7 @@ public class AdminController {
 		return new ResponseEntity<List<Auction>>(allAuctions,HttpStatus.OK);
 	}
 	
+	// 
 	
 	
 	

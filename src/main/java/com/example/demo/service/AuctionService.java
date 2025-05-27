@@ -153,7 +153,17 @@ public class AuctionService {
 	    }
 	
 	
-	
+	    public boolean recoverAuction(Integer auctionId) {
+	        Auction auction = auctionRepository.findByIdIncludingInactive(auctionId);
+	        if (auction == null || auction.getActive() == 1) {
+	            return false;
+	        }
+
+	        auction.setActive(1);
+	        auctionRepository.save(auction);
+	        return true;
+	    }
+
 
 	
 }

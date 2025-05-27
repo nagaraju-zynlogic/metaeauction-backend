@@ -16,5 +16,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Integer> {
 	   List<Auction> findAuctionsWonByUser(@Param("userId") Integer userId);
 	 @Query(value = "SELECT * FROM auctions", nativeQuery = true)
 	 List<Auction> findAllIncludingInactive();
+	 @Query("SELECT a FROM Auction a WHERE a.id = :id")
+	 Auction findByIdIncludingInactive(@Param("id") Integer id);
 
 }
