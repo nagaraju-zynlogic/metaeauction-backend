@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,13 +75,17 @@ public class AuctionService {
 		return null;
 	}
 
-	public void deleteAuction(Integer id) {
-		if (id != null) {
-			auctionRepository.deleteById(id);
-		}
-		
-		
+	public boolean softDeleteAuction(Integer auctionId) {
+	    Optional<Auction> optionalAuction = auctionRepository.findById(auctionId);
+	    if (optionalAuction.isPresent()) {
+	        Auction auction = optionalAuction.get();
+	        auction.setActive(0); // Soft delete
+	        auctionRepository.save(auction);
+	        return true;
+	    }
+	    return false;
 	}
+
 
 	public List<Auction> getWonAuctionByUserId(Users user) {
 		// find all actions won by a user from acution table

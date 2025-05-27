@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import org.hibernate.annotations.Where;
+
 import com.example.demo.statusEnum.AuctionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -25,6 +27,7 @@ import lombok.Data;
 
 @Table(name = "auctions")
 @Data
+@Where(clause = "is_active = 1")
 public class Auction {
 
     @Id
@@ -57,7 +60,8 @@ public class Auction {
     private Integer createdByAdminId; // FK to admins
 
     private LocalDateTime createdAt;
-    
+    @Column(name = "is_active")
+    private Integer active;
     // Default constructor
 
     @ManyToOne

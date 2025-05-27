@@ -160,20 +160,41 @@ public class AdminController {
 		}
 	
 	}
+
+	/*	@DeleteMapping("/delete/auction")
+		public ResponseEntity<String> deleteAuction(@RequestBody Auction auction) {
+			// Validate the auction details
+			if (auction.getId() == null) {
+				log.info("Invalid auction details");
+				return ResponseEntity.badRequest().body("Auction ID is required");
+			}
+			
+			// Delete the auction
+			auctionService.deleteAuction(auction.getId());
+			log.info("Auction deleted successfully");
+			return ResponseEntity.ok("Auction deleted successfully");
+		}*/
+	
+	
+	// delete auction by setting is Active 0
+	
 	@DeleteMapping("/delete/auction")
 	public ResponseEntity<String> deleteAuction(@RequestBody Auction auction) {
-		// Validate the auction details
-		if (auction.getId() == null) {
-			log.info("Invalid auction details");
-			return ResponseEntity.badRequest().body("Auction ID is required");
-		}
-		
-		// Delete the auction
-		auctionService.deleteAuction(auction.getId());
-		log.info("Auction deleted successfully");
-		return ResponseEntity.ok("Auction deleted successfully");
+	    if (auction.getId() == null) {
+	        log.warn("Attempted to delete auction with null ID");
+	        return ResponseEntity.badRequest().body("Auction ID is required");
+	    }
+
+	    boolean deleted = auctionService.softDeleteAuction(auction.getId());
+	    if (deleted) {
+	        log.info("Auction soft-deleted successfully (ID: {})", auction.getId());
+	        return ResponseEntity.ok("Auction soft-deleted successfully");
+	    } else {
+	        log.warn("Auction not found for deletion (ID: {})", auction.getId());
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found");
+	    }
 	}
-	
+
 	// find all bids
 	@GetMapping("/bids/{auctionId}")
 	public ResponseEntity<List<Bid>> getAllBids(@PathVariable("auctionId") Integer auctionId) {
