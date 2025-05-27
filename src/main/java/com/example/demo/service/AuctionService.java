@@ -98,6 +98,7 @@ public class AuctionService {
 		List<Auction> auctions = auctionRepository.findAll();
 		bidService.updateBidStatusAndTime();
 		// dont update auction status if statuc is CANCELED AND COMPLETED
+		if (auctions != null) {
 		for (Auction auction : auctions) {
 			if (auction.getStatus() != AuctionStatus.CANCELED && auction.getStatus() != AuctionStatus.COMPLETED) {
 				
@@ -115,7 +116,8 @@ public class AuctionService {
 				
 			}
 		
-		}	
+		}
+		}
 	}
 	// update auction end time  plus mins
 	public Auction updateAuctionEndTime(Integer auctionId, int minutesToAdd) {
@@ -132,6 +134,12 @@ public class AuctionService {
 		    }
 		   log.info("auction not updated");
 		    return null;
+		
+	}
+
+	public List<Auction> getAllAuctionIncludingInActive() {
+			log.info("getAllAuctionIncludingInActive at service");
+		return	auctionRepository.findAllIncludingInactive();
 		
 	}
 	

@@ -14,5 +14,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Integer> {
 	//  private Integer highestBidderId; 
 	 @Query("SELECT a FROM Auction a WHERE a.highestBidderId = :userId")
 	   List<Auction> findAuctionsWonByUser(@Param("userId") Integer userId);
+	 @Query(value = "SELECT * FROM auctions", nativeQuery = true)
+	 List<Auction> findAllIncludingInactive();
 
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.example.demo.Repository.userRepository;
 import com.example.demo.dto.AcceptBidDTO;
@@ -325,20 +327,15 @@ public class AdminController {
 	// retrieve user by setting active to 1
 	@PostMapping("/active/user/{userId}")
 	public ResponseEntity<String> retrieveUser(@PathVariable("userId") Integer userId) {
-		Users user = usersRepository.findInactiveUserById(userId).orElse(null);
-		if (user == null) {
-			return ResponseEntity.badRequest().body("User not found");
-		}
-		// check if user active
-		if (user.getActive() == 1) {
-			return ResponseEntity.badRequest().body("User is already active");
-		}
-		user.setActive(1);
-		usersRepository.save(user);
-		log.info("User retrieved successfully");
-		
-		return ResponseEntity.ok("User retrieved successfully");
+	    Users user = usersRepository.findInactiveUserById(userId).orElse(null);
+	    if (user == null) {
+	        return ResponseEntity.badRequest().body("Inactive user not found");
+	    }
+	    user.setActive(1);
+	    usersRepository.save(user);
+	    return ResponseEntity.ok("User reactivated successfully");
 	}
+
 	
 	
 	// verify user  by setting user status as a verified
@@ -382,6 +379,17 @@ public class AdminController {
 		
 		return ResponseEntity.ok("Admin registered successfully");
 	}
+	// get all auctions 
+	@GetMapping("/AllAuctions")
+	public ResponseEntity<?> getAllAuctionForAdmin(){
+		
+		List<Auction> allAuctions= auctionService.getAllAuctionIncludingInActive();
+		if(allAuctions.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No auctions found");
+		}
+		return new ResponseEntity<List<Auction>>(allAuctions,HttpStatus.OK);
+	}
+	
 	
 	
 	
