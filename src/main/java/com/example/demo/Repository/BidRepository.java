@@ -20,7 +20,7 @@ public interface BidRepository extends JpaRepository<Bid,Integer> {
 	 @Query("SELECT MAX(b.bidAmount) FROM Bid b WHERE b.auction.id = :auctionId")
 	 Optional<Double> findHighestBidForAuction(@Param("auctionId") int auctionId);
 
-	
+	 boolean existsByAuctionId(Integer auctionId);
 	
 	
 

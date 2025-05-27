@@ -16,6 +16,6 @@ public interface AutoBidConfigRepository extends JpaRepository<AutoBidConfig, In
     List<AutoBidConfig> findByAuction(Auction auction);
     
     Optional<AutoBidConfig> findByUserIdAndAuctionId(int userId, int auctionId);
-
+    boolean existsByAuctionId(Integer auctionId);
     
 }

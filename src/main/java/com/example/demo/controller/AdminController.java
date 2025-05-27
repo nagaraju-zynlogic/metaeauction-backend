@@ -187,15 +187,27 @@ public class AdminController {
 	        return ResponseEntity.badRequest().body("Auction ID is required");
 	    }
 
+	    Auction existingAuction = auctionService.getAuctionById(auction.getId());
+	    if (existingAuction == null) {
+	        log.warn("Auction not found for deletion (ID: {})", auction.getId());
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found");
+	    }
+
+	    if (!auctionService.canDeleteAuction(auction.getId())) {
+	        log.warn("Cannot delete auction (ID: {}) due to existing bids or auto-bids", auction.getId());
+	        return ResponseEntity.badRequest().body("Cannot delete auction because it has existing bids or auto-bids");
+	    }
+
 	    boolean deleted = auctionService.softDeleteAuction(auction.getId());
 	    if (deleted) {
 	        log.info("Auction soft-deleted successfully (ID: {})", auction.getId());
 	        return ResponseEntity.ok("Auction soft-deleted successfully");
 	    } else {
-	        log.warn("Auction not found for deletion (ID: {})", auction.getId());
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found");
+	        log.warn("Auction not found or already deleted (ID: {})", auction.getId());
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction not found or already deleted");
 	    }
 	}
+
 
 	// find all bids
 	@GetMapping("/bids/{auctionId}")
@@ -384,7 +396,8 @@ public class AdminController {
 	public ResponseEntity<?> getAllAuctionForAdmin(){
 		
 		List<Auction> allAuctions= auctionService.getAllAuctionIncludingInActive();
-		
+		allAuctions.forEach(a -> a.setActive(1));
+	    arepo.saveAll(allAuctions);
 		if(allAuctions.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No auctions found");
 		}

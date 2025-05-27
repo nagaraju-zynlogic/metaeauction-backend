@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Repository.AuctionRepository;
+import com.example.demo.Repository.AutoBidConfigRepository;
 import com.example.demo.Repository.BidRepository;
 import com.example.demo.entity.Auction;
 import com.example.demo.entity.Bid;
@@ -30,6 +31,8 @@ public class AuctionService {
 	@Autowired
 	private BidService bidService;
 
+	@Autowired
+	private AutoBidConfigRepository autoBidRepo;
 	LocalDateTime NOW =ZonedDateTime.now(ZoneId.of("Asia/Kolkata")).toLocalDateTime();
 	public List<Auction> getAllAuctions() {
 		List<Auction> auctions = auctionRepository.findAll();
@@ -75,16 +78,6 @@ public class AuctionService {
 		return null;
 	}
 
-	public boolean softDeleteAuction(Integer auctionId) {
-	    Optional<Auction> optionalAuction = auctionRepository.findById(auctionId);
-	    if (optionalAuction.isPresent()) {
-	        Auction auction = optionalAuction.get();
-	        auction.setActive(0); // Soft delete
-	        auctionRepository.save(auction);
-	        return true;
-	    }
-	    return false;
-	}
 
 
 	public List<Auction> getWonAuctionByUserId(Users user) {
@@ -142,6 +135,23 @@ public class AuctionService {
 		return	auctionRepository.findAllIncludingInactive();
 		
 	}
+	
+	 public boolean canDeleteAuction(Integer auctionId) {
+	        return !bidRepository.existsByAuctionId(auctionId)
+	                && !autoBidRepo.existsByAuctionId(auctionId);
+	    }
+
+	    public boolean softDeleteAuction(Integer auctionId) {
+	        Optional<Auction> optionalAuction = auctionRepository.findById(auctionId);
+	        if (optionalAuction.isPresent()) {
+	            Auction auction = optionalAuction.get();
+	            auction.setActive(0);
+	            auctionRepository.save(auction);
+	            return true;
+	        }
+	        return false;
+	    }
+	
 	
 	
 
