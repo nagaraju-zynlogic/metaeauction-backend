@@ -396,8 +396,7 @@ public class AdminController {
 	public ResponseEntity<?> getAllAuctionForAdmin(){
 		
 		List<Auction> allAuctions= auctionService.getAllAuctionIncludingInActive();
-		allAuctions.forEach(a -> a.setActive(1));
-	    arepo.saveAll(allAuctions);
+		
 		if(allAuctions.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No auctions found");
 		}
