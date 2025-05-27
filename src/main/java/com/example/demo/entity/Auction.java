@@ -61,7 +61,7 @@ public class Auction {
 
     private LocalDateTime createdAt;
     @Column(name = "is_active")
-    private Integer active;
+    private Integer active = 1;
     // Default constructor
 
     @ManyToOne
