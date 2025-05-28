@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,7 +101,7 @@ public class AuctionService {
 					auction.setStatus(AuctionStatus.ACTIVE);
 					auctionRepository.save(auction);
 				} else if (auction.getEndDate().isBefore(NOW) && auction.getStatus() != AuctionStatus.COMPLETED)  {
-					auction.setStatus(AuctionStatus.COMPLETED);
+					 finalizeCompletedAuction(auction);
 					auctionRepository.save(auction);
 				} else if (auction.getStartDate().isAfter(NOW) && auction.getStatus() != AuctionStatus.UPCOMING) {
 					auction.setStatus(AuctionStatus.UPCOMING);
@@ -164,6 +165,39 @@ public class AuctionService {
 	        return true;
 	    }
 
+	    public void finalizeCompletedAuction(Auction auction) {
+	        List<Bid> bids = bidService.getBidsByAuction(auction);
+
+	        if (bids != null && !bids.isEmpty()) {
+	            // Find highest bid
+	            Bid highestBid = bids.stream()
+	                    .max(Comparator.comparingDouble(Bid::getBidAmount))
+	                    .orElse(null);
+
+	            if (highestBid != null) {
+	                auction.setHighestBidAmount(highestBid.getBidAmount());
+	                auction.setHighestBidderId(highestBid.getUser().getId());
+	                auction.setBidId(highestBid.getId());
+	                auction.setStatus(AuctionStatus.COMPLETED);
+	                auctionRepository.save(auction);
+
+	                // Accept highest bid, reject others
+	                for (Bid bid : bids) {
+	                    if (bid.getId().equals(highestBid.getId())) {
+	                        bid.setBidStatus("ACCEPTED");
+	                    } 
+	                    //	                        else {
+//	                        bid.setBidStatus("REJECTED");
+//	                    }
+	                }
+	                bidService.saveAllBids(bids);
+	            }
+	        } else {
+	            // No bids placed, just mark as completed
+	            auction.setStatus(AuctionStatus.COMPLETED);
+	            auctionRepository.save(auction);
+	        }
+	    }
 
 	
 }
