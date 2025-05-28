@@ -113,14 +113,14 @@ public class AuctionService {
 		}
 	}
 	// update auction end time  plus mins
-	public Auction updateAuctionEndTime(Integer auctionId, int minutesToAdd) {
-		log.info("actuion  " + auctionId +  " " + minutesToAdd);
+	public Auction updateAuctionEndTime(Integer auctionId, int secondsToAdd) {
+		log.info("actuion  " + auctionId +  " " + secondsToAdd);
 		    if (auctionId != null) {
 		        Auction auction = auctionRepository.findById(auctionId).orElse(null);
 		        
 		        if (auction != null) {
 		        	
-		            auction.setEndDate(auction.getEndDate().plusMinutes(minutesToAdd));
+		            auction.setEndDate(auction.getEndDate().plusSeconds(secondsToAdd));
 		            log.info( " "  + auction);
 		            return auctionRepository.save(auction);
 		        }

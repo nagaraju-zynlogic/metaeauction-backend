@@ -76,8 +76,8 @@ public class BidController {
 	        }
 
 	        // Extend end time if auction is ending in < 3 min
-	        if (Duration.between(NOW, auction.getEndDate()).toMinutes() < 3) {
-	            auctionService.updateAuctionEndTime(auction.getId(), 3);
+	        if (Duration.between(NOW, auction.getEndDate()).toSeconds() < 90) {
+	            auctionService.updateAuctionEndTime(auction.getId(), 90);
 	        }
 
 	        // Save manual bid
