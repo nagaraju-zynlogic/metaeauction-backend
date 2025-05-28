@@ -62,14 +62,16 @@ public class AuctionService {
 	}
 
 	public List<Auction> getAuctionByUserId(Users user) {
-		// find all actions bided by a user
-		 List<Bid> bids = bidRepository.findAllByUser(user);
-		 List<Auction> auctions = bids.stream()
-					.map(Bid::getAuction)
-					.toList();
-		 return auctions;
-		
+	    List<Bid> bids = bidRepository.findAllByUser(user);
+
+	    List<Auction> auctions = bids.stream()
+	            .map(Bid::getAuction)
+	            .distinct()
+	            .toList(); // requires Java 16+, use collect(Collectors.toList()) for earlier versions
+
+	    return auctions;
 	}
+
 
 	public Auction saveAuction(Auction auction) {
 		if (auction != null) {

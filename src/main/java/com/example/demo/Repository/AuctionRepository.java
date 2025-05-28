@@ -10,6 +10,7 @@ import com.example.demo.entity.Auction;
 import com.example.demo.entity.Users;
 
 public interface AuctionRepository extends JpaRepository<Auction, Integer> {
+
 	List<Auction> findAllByUser(Users user);
 	//  private Integer highestBidderId; 
 	 @Query("SELECT a FROM Auction a WHERE a.highestBidderId = :userId")

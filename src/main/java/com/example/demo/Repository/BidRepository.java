@@ -21,7 +21,6 @@ public interface BidRepository extends JpaRepository<Bid,Integer> {
 	 Optional<Double> findHighestBidForAuction(@Param("auctionId") int auctionId);
 
 	 boolean existsByAuctionId(Integer auctionId);
-	
-	
+
 
 }
