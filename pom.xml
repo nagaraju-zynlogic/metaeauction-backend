@@ -65,6 +65,12 @@
     <artifactId>spring-webmvc</artifactId>
     <version>6.2.6</version>
 </dependency>
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-context-indexer</artifactId>
+  <optional>true</optional>
+</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

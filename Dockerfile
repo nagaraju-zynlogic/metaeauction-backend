@@ -2,25 +2,32 @@
 FROM maven:3.8.5-openjdk-17 AS builder
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies
+# Cache dependencies (this will speed up future builds)
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy source files and build the app
+# Copy source files
 COPY src ./src
+
+# Build the app (skip tests for speed)
 RUN mvn clean package -DskipTests
 
-# ------------ Stage 2: Run the application ------------
-FROM openjdk:17-jdk-slim
+# ------------ Stage 2: Minimal runtime image ------------
+FROM eclipse-temurin:17-jre-alpine AS runtime
 WORKDIR /app
 
-# Copy the JAR file from the build stage
+# Set timezone
+ENV TZ=Asia/Kolkata
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apk del tzdata
+
+# Copy the JAR file from the builder stage
 COPY --from=builder /app/target/auction12-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose port (Spring Boot default)
+# Expose port
 EXPOSE 8080
-ENV TZ=Asia/Kolkata
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Run the JAR
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the app with performance-focused JVM flags
+ENTRYPOINT ["java", "-XX:+UseG1GC", "-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-jar", "app.jar"]
