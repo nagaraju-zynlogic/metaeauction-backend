@@ -19,5 +19,7 @@ public interface userRepository  extends JpaRepository<Users, Integer> , CrudRep
     // find all users active and inactive
     @Query(value = "SELECT * FROM users12", nativeQuery = true)
     List<Users> findAllUsers();
-
+    
+    
+    Optional<Users> findById(Integer id);
 }

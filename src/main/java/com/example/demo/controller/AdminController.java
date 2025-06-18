@@ -25,6 +25,8 @@ import com.example.demo.entity.Users;
 import com.example.demo.service.AdminService;
 import com.example.demo.service.AuctionService;
 import com.example.demo.service.BidService;
+import com.example.demo.service.CustomUserDetailsService;
+import com.example.demo.service.EmailService;
 import com.example.demo.statusEnum.AuctionStatus;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,13 @@ public class AdminController {
 	private AuctionService auctionService;
 	@Autowired
 	private AuctionRepository arepo;
+	
+	@Autowired 
+	private EmailService emailService;
+	
+	@Autowired
+    private CustomUserDetailsService userService;
+	
 	
 	@Autowired
 	private BidService bidService;
@@ -323,6 +332,15 @@ public class AdminController {
 		// Accept the bid
 		bid.setBidStatus("ACCEPTED");
 		bidService.saveBid(bid);
+		
+		
+		 Users user = userService.getUserById(bidDTO.getUserId());
+		    if (user != null && user.getEmail() != null) {
+		        String subject = "🎉 Congratulations! Your Bid is Accepted";
+		        String body = String.format("Hello %s,\n\nYour bid of ₹%.2f for auction ID %d has been accepted. You are the highest bidder!\n\nThank you for participating.\n\n- Meta E-Auction Team",
+		                user.getUsername(), bidDTO.getBidAmount(), bidDTO.getAuctionId());
+		        emailService.sendMail(user.getEmail(), subject, body);
+		    }
 		log.info("Bid accepted successfully");
 		
 		return ResponseEntity.ok("Bid accepted successfully");
@@ -330,6 +348,8 @@ public class AdminController {
 
 	
 	}
+
+	
 	// reject bid based on bid id
 	@PostMapping("/rejectBid/{bidId}")
 	public ResponseEntity<String> rejectBid(@PathVariable("bidId") Integer bidId) {
@@ -364,23 +384,36 @@ public class AdminController {
 	
 	// verify user  by setting user status as a verified
 	@PostMapping("/verify/user/{userId}")
-	public ResponseEntity<String> verifyUser(@PathVariable Integer userId){
-		Optional<Users> user = usersRepository.findById(userId);
-		if (user.get().getStatus().equalsIgnoreCase("verified")) {
-			log.info("user alredy verified");
-			return ResponseEntity.ok("user already verifyed");
-		}
-		else if(user.isPresent()) {
-			user.get().setStatus("verified");
-		
-			usersRepository.save(user.get());
-			log.info("User verified");
-			return ResponseEntity.ok("User verified");
-		}
-		else
-			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
-		
+	public ResponseEntity<String> verifyUser(@PathVariable Integer userId) {
+	    Optional<Users> userOptional = usersRepository.findById(userId);
+
+	    if (userOptional.isEmpty()) {
+	        log.warn("User not found for ID: {}", userId);
+	        return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+	    }
+
+	    Users user = userOptional.get();
+
+	    if ("verified".equalsIgnoreCase(user.getStatus())) {
+	        log.info("User already verified: {}", user.getEmail());
+	        return ResponseEntity.ok("User already verified");
+	    }
+
+	    user.setStatus("verified");
+	    usersRepository.save(user);
+
+	    log.info("User verified successfully: {}", user.getEmail());
+
+	    // Send confirmation email
+	    if (user.getEmail() != null) {
+	        String subject = "✅ Your Account Has Been Verified";
+	        String body = String.format("Hello %s,\n\nYour account has been successfully verified. You can now access all features of Meta E-Auction.\n\nThank you for verifying.\n\n- Meta E-Auction Team", user.getUsername());
+	        emailService.sendMail(user.getEmail(), subject, body);
+	    }
+
+	    return ResponseEntity.ok("User verified successfully");
 	}
+
 	
 	// register admin
 	@PostMapping("/register")
