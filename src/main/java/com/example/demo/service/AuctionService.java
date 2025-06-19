@@ -31,6 +31,9 @@ public class AuctionService {
 	
 	@Autowired
 	private BidService bidService;
+	
+	@Autowired
+	private EmailService emailService;
 
 	@Autowired
 	private AutoBidConfigRepository autoBidRepo;
@@ -187,10 +190,21 @@ public class AuctionService {
 	                for (Bid bid : bids) {
 	                    if (bid.getId().equals(highestBid.getId())) {
 	                        bid.setBidStatus("ACCEPTED");
+
+	                        // ✅ Send email to winning user
+	                        String email = bid.getUser().getEmail();
+	                        String subject = "Congratulations! Your Bid Was Accepted";
+	                        String body = "Dear " + bid.getUser().getUsername() + ",\n\n" +
+	                                      "Congratulations! Your bid of ₹" + bid.getBidAmount() + 
+	                                      " has been accepted for the auction item \"" + auction.getName() + "\".\n\n" +
+	                                      "Thank you for participating.\n\nRegards,\nAuction Team";
+
+	                        emailService.sendMail(email, subject, body);
 	                    } 
-	                    //	                        else {
-//	                        bid.setBidStatus("REJECTED");
-//	                    }
+	                    // You can optionally reject other bids here:
+	                    // else {
+	                    //     bid.setBidStatus("REJECTED");
+	                    // }
 	                }
 	                bidService.saveAllBids(bids);
 	            }
