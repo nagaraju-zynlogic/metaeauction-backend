@@ -17,7 +17,7 @@ public class EmailService {
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
-            message.setFrom("premchandu.m@gynlogic.com"); // Should match spring.mail.username
+            message.setFrom("info@metaeauction.com"); // Should match spring.mail.username
             mailSender.send(message);
         } catch (Exception e) {
             e.printStackTrace();
